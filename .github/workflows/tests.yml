@@ -25,18 +25,13 @@ jobs:
         php-versions: ['8.2', '8.3']
         databases: ['sqlite']
         server-versions:
-          ['stable27', 'stable28', 'stable29', 'stable30', 'stable31']
+          ['stable30', 'stable31', 'stable32']
         experimental: [false]
         include:
-          - php-versions: '8.3'
+          - php-versions: '8.4'
             databases: sqlite
             server-versions: master
             experimental: true
-        exclude:
-          - php-versions: '8.3'
-            databases: sqlite
-            server-versions: 'stable27'
-            experimental: false
 
     name: test-php${{ matrix.php-versions }}-${{ matrix.databases }}-${{ matrix.server-versions }}
 
