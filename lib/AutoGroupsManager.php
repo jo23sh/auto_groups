@@ -3,7 +3,7 @@
 /**
  * @copyright Copyright (c) 2020
  *
- * @author Josua Hunziker <der@digitalwerker.ch>
+ * @author Josua Hunziker <josh@o23.ch>
  *
  * Based on the work of Ján Stibila <nextcloud@stibila.eu>
  *

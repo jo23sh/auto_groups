@@ -26,7 +26,7 @@ In addition, I plan to add some more features over time, e.g., "Union Groups" - 
     </description>
     <version>1.7.0</version>
     <licence>agpl</licence>
-    <author mail="der@digitalwerker.ch" >Josua Hunziker</author>
+    <author mail="josh@o23.ch" >Josua Hunziker</author>
     <namespace>AutoGroups</namespace>
     <category>tools</category>
     <website>https://github.com/stjosh/auto_groups</website>

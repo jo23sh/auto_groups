@@ -3,7 +3,7 @@
 /**
  * @copyright Copyright (c) 2020
  *
- * @author Josua Hunziker <der@digitalwerker.ch>
+ * @author Josua Hunziker <josh@o23.ch>
  *
  * @license GNU AGPL version 3 or any later version
  *
