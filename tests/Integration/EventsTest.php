@@ -156,7 +156,7 @@ class EventsTest extends TestCase
         // Login SHOULD trigger removal from auto groups (login_hook=true, user in override group)
         // Note: IUserSession::login() does not reliably dispatch events in CLI test context,
         // so we dispatch PostLoginEvent directly to test the listener.
-        $this->eventDispatcher->dispatchTyped(new PostLoginEvent($testUser, 'testPassword', false));
+        $this->eventDispatcher->dispatchTyped(new PostLoginEvent($testUser, 'testuser', 'testPassword', false));
 
         $this->assertTrue(!$autogroup1->inGroup($testUser) && !$autogroup2->inGroup($testUser));
     }
