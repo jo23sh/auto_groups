@@ -28,7 +28,8 @@ namespace OCA\AutoGroups\Tests\Integration;
 use OCP\IUserManager;
 use OCP\IGroupManager;
 use OCP\IConfig;
-use OCP\IUserSession;
+use OCP\EventDispatcher\IEventDispatcher;
+use OCP\User\Events\PostLoginEvent;
 
 use OCP\AppFramework\OCS\OCSBadRequestException;
 
@@ -46,7 +47,7 @@ class EventsTest extends TestCase
     private $userManager;
     private $groupManager;
     private $config;
-    private $userSession;
+    private $eventDispatcher;
 
     private $backend;
 
@@ -60,7 +61,7 @@ class EventsTest extends TestCase
         $this->groupManager = $this->container->query(IGroupManager::class);
         $this->userManager = $this->container->query(IUserManager::class);
         $this->config = $this->container->query(IConfig::class);
-        $this->userSession = $this->container->query(IUserSession::class);
+        $this->eventDispatcher = $this->container->query(IEventDispatcher::class);
 
         $this->backend = $this->groupManager->getBackends()[0];
 
@@ -153,7 +154,9 @@ class EventsTest extends TestCase
         $this->assertTrue($autogroup1->inGroup($testUser) && $autogroup2->inGroup($testUser));
 
         // Login SHOULD trigger removal from auto groups (login_hook=true, user in override group)
-        $this->userSession->login('testuser', 'testPassword');
+        // Note: IUserSession::login() does not reliably dispatch events in CLI test context,
+        // so we dispatch PostLoginEvent directly to test the listener.
+        $this->eventDispatcher->dispatchTyped(new PostLoginEvent($testUser, 'testPassword', false));
 
         $this->assertTrue(!$autogroup1->inGroup($testUser) && !$autogroup2->inGroup($testUser));
     }
