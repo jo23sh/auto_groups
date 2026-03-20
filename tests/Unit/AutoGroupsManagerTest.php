@@ -112,6 +112,7 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getUser')
             ->willReturn($this->testUser);
 
+        // User belongs to no groups, so they should be added to the auto group
         $this->groupManager->expects($this->once())
             ->method('getUserGroups')
             ->with($this->testUser)
@@ -138,6 +139,7 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getUser')
             ->willReturn($this->testUser);
 
+        // User is already in the auto group, so addUser should never be called
         $this->groupManager->expects($this->once())
             ->method('getUserGroups')
             ->with($this->testUser)
@@ -164,6 +166,7 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getUser')
             ->willReturn($this->testUser);
 
+        // User belongs to an override group, so they should be removed from all auto groups
         $this->groupManager->expects($this->once())
             ->method('getUserGroups')
             ->with($this->testUser)
@@ -190,6 +193,7 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getUser')
             ->willReturn($this->testUser);
 
+        // User is in an override group but not in any auto group, so removeUser should never be called
         $this->groupManager->expects($this->once())
             ->method('getUserGroups')
             ->with($this->testUser)
@@ -221,6 +225,7 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getGroup')
             ->willReturn($groupMock);
 
+        // autogroup2 is configured as an auto group, so deletion must be prevented
         $this->expectException(OCSBadRequestException::class);
 
         $agm = $this->createAutoGroupsManager(['autogroup1', 'autogroup2'], ['overridegroup1', 'overridegroup2']);
@@ -239,17 +244,20 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getGroup')
             ->willReturn($groupMock);
 
+        // 'some other group' is not referenced in config, so deletion should be allowed
         $agm = $this->createAutoGroupsManager(['autogroup1', 'autogroup2'], ['overridegroup1', 'overridegroup2']);
         $agm->handleGroupDeletion($event);
     }
 
     public function testConfigMigrationForCreationOnlyTrue()
     {
+        // Legacy creation_only=true means modification_hook should be migrated to false
         $agm = $this->configMigrationTestImpl('true', 'false');
     }
 
     public function testConfigMigrationForCreationOnlyFalse()
     {
+        // Legacy creation_only=false means modification_hook should be migrated to true
         $agm = $this->configMigrationTestImpl('false', 'true');
     }
 }

@@ -56,6 +56,7 @@ class AdminSettingsTest extends TestCase
     {
         $settings = $this->settingsManager->getAdminSettings('additional');
 
+        // The app must register its Admin settings class at priority 100 in the 'additional' section
         $this->assertArrayHasKey(100, $settings);
         $this->assertIsArray($settings[100]);
         $adminSettings = $settings[100][0];
@@ -66,6 +67,7 @@ class AdminSettingsTest extends TestCase
     {
         $appSettings = $this->settingsManager->getAdminSettings('additional')[100][0];
 
+        // getForm() must return a TemplateResponse (the actual template rendering is not tested here)
         $templateResponse = $appSettings->getForm();
         $this->assertInstanceOf(TemplateResponse::class, $templateResponse);
 

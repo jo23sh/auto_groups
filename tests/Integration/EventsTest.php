@@ -82,6 +82,7 @@ class EventsTest extends TestCase
         $this->config->setAppValue("auto_groups", "creation_hook", 'true');
         $this->config->setAppValue("auto_groups", "modification_hook", 'true');
 
+        // Creating a user should immediately add them to auto groups (creation_hook=true)
         $this->userManager->createUser('testuser', 'testPassword');
         $testUser = $this->userManager->get('testuser');
 
@@ -101,6 +102,7 @@ class EventsTest extends TestCase
         $overridegroup = $this->groupManager->search('overridegroup1')[0];
         $autogroup = $this->groupManager->search('autogroup1')[0];
 
+        // Adding user to an override group should remove them from auto groups (modification_hook=true)
         $overridegroup->addUser($testUser);
 
         $this->assertNotTrue($autogroup->inGroup($testUser));
@@ -119,6 +121,7 @@ class EventsTest extends TestCase
         $autogroup1 = $this->groupManager->search('autogroup1')[0];
         $autogroup2 = $this->groupManager->search('autogroup2')[0];
 
+        // Removing user from the override group should re-add them to all auto groups (modification_hook=true)
         $overridegroup->removeUser($testUser);
 
         $this->assertTrue($autogroup1->inGroup($testUser) && $autogroup2->inGroup($testUser));
@@ -166,6 +169,7 @@ class EventsTest extends TestCase
 
         $autogroup = $this->groupManager->search('autogroup1')[0];
 
+        // Deleting a group that is configured as an auto group should be prevented
         $this->expectException(OCSBadRequestException::class);
         $autogroup->delete();
     }
