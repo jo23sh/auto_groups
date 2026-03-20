@@ -124,26 +124,36 @@ class EventsTest extends TestCase
         $this->assertTrue($autogroup1->inGroup($testUser) && $autogroup2->inGroup($testUser));
     }
 
-    /*public function testLoginHook()
+    public function testLoginHook()
     {
         $this->config->setAppValue("auto_groups", "auto_groups", '["autogroup1", "autogroup2"]');
         $this->config->setAppValue("auto_groups", "override_groups", '["overridegroup1"]');
         $this->config->setAppValue("auto_groups", "login_hook", 'true');
         $this->config->setAppValue("auto_groups", "creation_hook", 'false');
         $this->config->setAppValue("auto_groups", "modification_hook", 'false');
-        
+
         $testUser = $this->userManager->get('testuser');
         $overridegroup = $this->groupManager->search('overridegroup1')[0];
         $autogroup1 = $this->groupManager->search('autogroup1')[0];
         $autogroup2 = $this->groupManager->search('autogroup2')[0];
 
+        // Set up initial state explicitly: user in auto groups, not in override group.
+        // modification_hook=false so these direct adds won't trigger auto groups logic.
+        $overridegroup->removeUser($testUser);
+        $autogroup1->addUser($testUser);
+        $autogroup2->addUser($testUser);
+
         $this->assertTrue($autogroup1->inGroup($testUser) && $autogroup2->inGroup($testUser));
-        
+
+        // Adding to override group should NOT remove from auto groups (modification_hook=false)
         $overridegroup->addUser($testUser);
+        $this->assertTrue($autogroup1->inGroup($testUser) && $autogroup2->inGroup($testUser));
+
+        // Login SHOULD trigger removal from auto groups (login_hook=true, user in override group)
         $this->userSession->login('testuser', 'testPassword');
 
         $this->assertTrue(!$autogroup1->inGroup($testUser) && !$autogroup2->inGroup($testUser));
-    }*/
+    }
 
 
     public function testBeforeGroupDeletionHook()
