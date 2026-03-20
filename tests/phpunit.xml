@@ -7,16 +7,12 @@
 	<testsuite name='Nextcloud - Auto Groups App Tests'>
 		<directory suffix='.php'>.</directory>
 	</testsuite>
-	<filter>
-		<whitelist>
-			<directory suffix=".php">../</directory>
-			<exclude>
-				<directory suffix=".php">../tests
-				</directory>
-			</exclude>
-		</whitelist>
-	</filter>
-	<logging>
-		<log type="coverage-clover" target="coverage.xml"/>
-	</logging>
+	<coverage>
+		<include>
+			<directory suffix=".php">../lib</directory>
+		</include>
+		<report>
+			<clover outputFile="coverage.xml"/>
+		</report>
+	</coverage>
 </phpunit>
