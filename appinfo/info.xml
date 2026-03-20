@@ -22,11 +22,10 @@ Note that this app prevents group deletions for groups referenced as Auto Groups
 * [Everyone Group](https://apps.nextcloud.com/apps/group_everyone): The "Everyone Group" app adds a virtual Group Backend, always returning all users. In contrast, "Auto Groups" operates on "real" groups in your normal Group Backend. Additionally, it is possible to specify Override Groups which will prevent users from being added to the Auto Group(s).
 * [Default Group](https://apps.nextcloud.com/apps/defaultgroup): "Auto Groups" is actually a modernized and maintaned fork of "Default Group", which seems to be abandoned since NC12 or so. In terms of functionality, they are almost identical.
 
-In addition, I plan to add some more features over time, e.g., "Union Groups" - see the [Milestone Plans](https://github.com/stjosh/auto_groups/milestones) for more details.
     </description>
-    <version>1.6.2</version>
+    <version>1.7.0</version>
     <licence>agpl</licence>
-    <author mail="der@digitalwerker.ch" >Josua Hunziker</author>
+    <author mail="josh@o23.ch" >Josua Hunziker</author>
     <namespace>AutoGroups</namespace>
     <category>tools</category>
     <website>https://github.com/stjosh/auto_groups</website>
@@ -34,7 +33,7 @@ In addition, I plan to add some more features over time, e.g., "Union Groups" - 
     <repository type="git">https://github.com/stjosh/auto_groups.git</repository>
     <screenshot>https://raw.githubusercontent.com/stjosh/auto_groups/master/screenshots/settings.png</screenshot>
     <dependencies>
-        <nextcloud min-version="30" max-version="33"/>
+        <nextcloud min-version="31" max-version="34"/>
     </dependencies>
     <settings>
         <admin>OCA\AutoGroups\Settings\Admin</admin>

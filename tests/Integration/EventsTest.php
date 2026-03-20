@@ -3,7 +3,7 @@
 /**
  * @copyright Copyright (c) 2020
  *
- * @author Josua Hunziker <der@digitalwerker.ch>
+ * @author Josua Hunziker <josh@o23.ch>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -28,7 +28,8 @@ namespace OCA\AutoGroups\Tests\Integration;
 use OCP\IUserManager;
 use OCP\IGroupManager;
 use OCP\IConfig;
-use OCP\IUserSession;
+use OCP\EventDispatcher\IEventDispatcher;
+use OCP\User\Events\PostLoginEvent;
 
 use OCP\AppFramework\OCS\OCSBadRequestException;
 
@@ -46,7 +47,7 @@ class EventsTest extends TestCase
     private $userManager;
     private $groupManager;
     private $config;
-    private $userSession;
+    private $eventDispatcher;
 
     private $backend;
 
@@ -60,7 +61,7 @@ class EventsTest extends TestCase
         $this->groupManager = $this->container->query(IGroupManager::class);
         $this->userManager = $this->container->query(IUserManager::class);
         $this->config = $this->container->query(IConfig::class);
-        $this->userSession = $this->container->query(IUserSession::class);
+        $this->eventDispatcher = $this->container->query(IEventDispatcher::class);
 
         $this->backend = $this->groupManager->getBackends()[0];
 
@@ -82,6 +83,7 @@ class EventsTest extends TestCase
         $this->config->setAppValue("auto_groups", "creation_hook", 'true');
         $this->config->setAppValue("auto_groups", "modification_hook", 'true');
 
+        // Creating a user should immediately add them to auto groups (creation_hook=true)
         $this->userManager->createUser('testuser', 'testPassword');
         $testUser = $this->userManager->get('testuser');
 
@@ -101,6 +103,7 @@ class EventsTest extends TestCase
         $overridegroup = $this->groupManager->search('overridegroup1')[0];
         $autogroup = $this->groupManager->search('autogroup1')[0];
 
+        // Adding user to an override group should remove them from auto groups (modification_hook=true)
         $overridegroup->addUser($testUser);
 
         $this->assertNotTrue($autogroup->inGroup($testUser));
@@ -119,31 +122,43 @@ class EventsTest extends TestCase
         $autogroup1 = $this->groupManager->search('autogroup1')[0];
         $autogroup2 = $this->groupManager->search('autogroup2')[0];
 
+        // Removing user from the override group should re-add them to all auto groups (modification_hook=true)
         $overridegroup->removeUser($testUser);
 
         $this->assertTrue($autogroup1->inGroup($testUser) && $autogroup2->inGroup($testUser));
     }
 
-    /*public function testLoginHook()
+    public function testLoginHook()
     {
         $this->config->setAppValue("auto_groups", "auto_groups", '["autogroup1", "autogroup2"]');
         $this->config->setAppValue("auto_groups", "override_groups", '["overridegroup1"]');
         $this->config->setAppValue("auto_groups", "login_hook", 'true');
         $this->config->setAppValue("auto_groups", "creation_hook", 'false');
         $this->config->setAppValue("auto_groups", "modification_hook", 'false');
-        
-        $testUser = $this->userManager->get('testuser');
-        $overridegroup = $this->groupManager->search('overridegroup1')[0];
+
+        // Use a dedicated user for this test to avoid state from other tests.
+        // IUserSession::login() cannot be used in CLI test context (no HTTP session),
+        // so we dispatch PostLoginEvent via the Nextcloud event dispatcher directly —
+        // the same mechanism Nextcloud uses internally for all other events in this test suite.
+        $loginUser = $this->userManager->createUser('loginuser', 'testPassword');
         $autogroup1 = $this->groupManager->search('autogroup1')[0];
         $autogroup2 = $this->groupManager->search('autogroup2')[0];
+        $overridegroup = $this->groupManager->search('overridegroup1')[0];
 
-        $this->assertTrue($autogroup1->inGroup($testUser) && $autogroup2->inGroup($testUser));
-        
-        $overridegroup->addUser($testUser);
-        $this->userSession->login('testuser', 'testPassword');
+        // Phase 1: user is not in override group → login should ADD them to auto groups
+        $this->assertFalse($autogroup1->inGroup($loginUser));
+        $this->eventDispatcher->dispatchTyped(new PostLoginEvent($loginUser, 'loginuser', 'testPassword', false));
+        $this->assertTrue($autogroup1->inGroup($loginUser) && $autogroup2->inGroup($loginUser));
 
-        $this->assertTrue(!$autogroup1->inGroup($testUser) && !$autogroup2->inGroup($testUser));
-    }*/
+        // Phase 2: add user to override group (modification_hook=false so no auto-trigger),
+        // then login should REMOVE them from auto groups.
+        // Re-fetch group objects to avoid stale per-Group $users cache from Phase 1.
+        $overridegroup->addUser($loginUser);
+        $this->eventDispatcher->dispatchTyped(new PostLoginEvent($loginUser, 'loginuser', 'testPassword', false));
+        $freshGroup1 = $this->groupManager->get('autogroup1');
+        $freshGroup2 = $this->groupManager->get('autogroup2');
+        $this->assertFalse($freshGroup1->inGroup($loginUser) || $freshGroup2->inGroup($loginUser));
+    }
 
 
     public function testBeforeGroupDeletionHook()
@@ -156,6 +171,7 @@ class EventsTest extends TestCase
 
         $autogroup = $this->groupManager->search('autogroup1')[0];
 
+        // Deleting a group that is configured as an auto group should be prevented
         $this->expectException(OCSBadRequestException::class);
         $autogroup->delete();
     }

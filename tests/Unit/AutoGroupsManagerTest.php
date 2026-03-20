@@ -3,7 +3,7 @@
 /**
  * @copyright Copyright (c) 2020
  *
- * @author Josua Hunziker <der@digitalwerker.ch>
+ * @author Josua Hunziker <josh@o23.ch>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -24,16 +24,10 @@
 
 namespace OCA\AutoGroups\Tests\Unit;
 
-use OCP\User\Events\UserCreatedEvent;
-use OCP\User\Events\UserFirstTimeLoggedInEvent;
-use OCP\User\Events\UserLoggedInEvent;
-use OCP\User\Events\PostLoginEvent;
-use OCP\Group\Events\UserAddedEvent;
-use OCP\Group\Events\UserRemovedEvent;
 use OCP\Group\Events\BeforeGroupDeletedEvent;
+use OCP\User\Events\UserCreatedEvent;
 
 use OCP\IGroupManager;
-use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IConfig;
 use OCP\IL10N;
 
@@ -52,7 +46,6 @@ use Test\TestCase;
 class AutoGroupsManagerTest extends TestCase
 {
     private $groupManager;
-    private $eventDispatcher;
     private $config;
     private $logger;
     private $il10n;
@@ -62,7 +55,6 @@ class AutoGroupsManagerTest extends TestCase
         parent::setUp();
 
         $this->groupManager = $this->createMock(IGroupManager::class);
-        $this->eventDispatcher = $this->createMock(IEventDispatcher::class);
         $this->config = $this->createMock(IConfig::class);
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->il10n = $this->createMock(IL10N::class);
@@ -73,58 +65,34 @@ class AutoGroupsManagerTest extends TestCase
             ->willReturn('Test User');
     }
 
-    private function createAutoGroupsManager(
-        $auto_groups = [],
-        $override_groups = [],
-        $creation_hook = 'true',
-        $modification_hook = 'true',
-        $login_hook = 'false',
-        $expectedNumberOfConfigCalls = 7
-    ) {
-        $this->config->expects($this->exactly($expectedNumberOfConfigCalls))
-            ->method('getAppValue')
-            ->withConsecutive(
-                ['AutoGroups', 'creation_only'],
-                ['AutoGroups', 'creation_hook'],
-                ['auto_groups', 'creation_hook', 'true'],
-                ['auto_groups', 'modification_hook', 'true'],
-                ['auto_groups', 'login_hook', 'false'],
-                ['auto_groups', 'auto_groups', '[]'],
-                ['auto_groups', 'override_groups', '[]']
-            )
-            ->willReturnOnConsecutiveCalls('', '', $creation_hook, $modification_hook, $login_hook, json_encode($auto_groups), json_encode($override_groups));
-
-        return new AutoGroupsManager($this->groupManager, $this->eventDispatcher, $this->config, $this->logger, $this->il10n);
-    }
-
-    private function initEventHandlerTests($auto_groups = [], $override_groups = [])
+    private function createAutoGroupsManager($auto_groups = [], $override_groups = [])
     {
-        $this->eventDispatcher->expects($this->exactly(5))
-            ->method('addListener')
-            ->withConsecutive(
-                [UserCreatedEvent::class, $this->callback('is_callable')],
-                [UserFirstTimeLoggedInEvent::class, $this->callback('is_callable')],
-                [UserAddedEvent::class, $this->callback('is_callable')],
-                [UserRemovedEvent::class, $this->callback('is_callable')],
-                [BeforeGroupDeletedEvent::class, $this->callback('is_callable')]
-            );
+        $this->config->method('getAppValue')
+            ->willReturnCallback(function ($app, $key, $default = '') use ($auto_groups, $override_groups) {
+                if ($app === 'AutoGroups') {
+                    return ''; // no migration needed
+                }
+                if ($app === 'auto_groups' && $key === 'auto_groups') {
+                    return json_encode($auto_groups);
+                }
+                if ($app === 'auto_groups' && $key === 'override_groups') {
+                    return json_encode($override_groups);
+                }
+                return $default;
+            });
 
-        $agm = $this->createAutoGroupsManager($auto_groups, $override_groups);
-        return $agm;
+        return new AutoGroupsManager($this->groupManager, $this->config, $this->logger, $this->il10n);
     }
 
     private function configMigrationTestImpl($creationOnly, $expectedModification)
     {
-        $this->config->expects($this->exactly(5))
+        $this->config->expects($this->exactly(2))
             ->method('getAppValue')
             ->withConsecutive(
                 ['AutoGroups', 'creation_only'],
                 ['AutoGroups', 'creation_hook'],
-                ['auto_groups', 'creation_hook', 'true'],
-                ['auto_groups', 'modification_hook', 'true'],
-                ['auto_groups', 'login_hook', 'false'],
             )
-            ->willReturnOnConsecutiveCalls($creationOnly, '', 'true', 'true', 'false');
+            ->willReturnOnConsecutiveCalls($creationOnly, '');
 
         $this->config->expects($this->exactly(1))
             ->method('setAppValue')
@@ -134,65 +102,7 @@ class AutoGroupsManagerTest extends TestCase
             ->method('deleteAppValue')
             ->with('AutoGroups', 'creation_only');
 
-        return new AutoGroupsManager($this->groupManager, $this->eventDispatcher, $this->config, $this->logger, $this->il10n);
-    }
-
-    public function testCreatedAddedRemovedHooksWithDefaultSettings()
-    {
-        $this->eventDispatcher->expects($this->exactly(5))
-            ->method('addListener')
-            ->withConsecutive(
-                [UserCreatedEvent::class, $this->callback('is_callable')],
-                [UserFirstTimeLoggedInEvent::class, $this->callback('is_callable')],
-                [UserAddedEvent::class, $this->callback('is_callable')],
-                [UserRemovedEvent::class, $this->callback('is_callable')],
-                [BeforeGroupDeletedEvent::class, $this->callback('is_callable')]
-            );
-
-        $agm = $this->createAutoGroupsManager([], [], 'true', 'true', 'false', 5);
-    }
-
-    public function testAlsoLoginHookIfEnabled()
-    {
-        $this->eventDispatcher->expects($this->exactly(7))
-            ->method('addListener')
-            ->withConsecutive(
-                [UserCreatedEvent::class, $this->callback('is_callable')],
-                [UserFirstTimeLoggedInEvent::class, $this->callback('is_callable')],
-                [UserAddedEvent::class, $this->callback('is_callable')],
-                [UserRemovedEvent::class, $this->callback('is_callable')],
-                [PostLoginEvent::class, $this->callback('is_callable')],
-                [UserLoggedInEvent::class, $this->callback('is_callable')],
-                [BeforeGroupDeletedEvent::class, $this->callback('is_callable')]
-            );
-
-        $agm = $this->createAutoGroupsManager([], [], 'true', 'true', 'true', 5);
-    }
-
-    public function testCreationOnlyMode()
-    {
-        $this->eventDispatcher->expects($this->exactly(3))
-            ->method('addListener')
-            ->withConsecutive(
-                [UserCreatedEvent::class, $this->callback('is_callable')],
-                [UserFirstTimeLoggedInEvent::class, $this->callback('is_callable')],
-                [BeforeGroupDeletedEvent::class, $this->callback('is_callable')]
-            );
-
-        $agm = $this->createAutoGroupsManager([], [], 'true', 'false', 'false', 5);
-    }
-
-    public function testModificationOnlyMode()
-    {
-        $this->eventDispatcher->expects($this->exactly(3))
-            ->method('addListener')
-            ->withConsecutive(
-                [UserAddedEvent::class, $this->callback('is_callable')],
-                [UserRemovedEvent::class, $this->callback('is_callable')],
-                [BeforeGroupDeletedEvent::class, $this->callback('is_callable')]
-            );
-
-        $agm = $this->createAutoGroupsManager([], [], 'false', 'true', 'false', 5);
+        return new AutoGroupsManager($this->groupManager, $this->config, $this->logger, $this->il10n);
     }
 
     public function testAddingToAutoGroups()
@@ -202,6 +112,7 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getUser')
             ->willReturn($this->testUser);
 
+        // User belongs to no groups, so they should be added to the auto group
         $this->groupManager->expects($this->once())
             ->method('getUserGroups')
             ->with($this->testUser)
@@ -217,7 +128,7 @@ class AutoGroupsManagerTest extends TestCase
             ->with('autogroup')
             ->willReturn([$autogroup]);
 
-        $agm = $this->initEventHandlerTests(['autogroup']);
+        $agm = $this->createAutoGroupsManager(['autogroup']);
         $agm->addAndRemoveAutoGroups($event);
     }
 
@@ -228,6 +139,7 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getUser')
             ->willReturn($this->testUser);
 
+        // User is already in the auto group, so addUser should never be called
         $this->groupManager->expects($this->once())
             ->method('getUserGroups')
             ->with($this->testUser)
@@ -243,7 +155,7 @@ class AutoGroupsManagerTest extends TestCase
             ->with('autogroup')
             ->willReturn([$autogroup]);
 
-        $agm = $this->initEventHandlerTests(['autogroup']);
+        $agm = $this->createAutoGroupsManager(['autogroup']);
         $agm->addAndRemoveAutoGroups($event);
     }
 
@@ -254,6 +166,7 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getUser')
             ->willReturn($this->testUser);
 
+        // User belongs to an override group, so they should be removed from all auto groups
         $this->groupManager->expects($this->once())
             ->method('getUserGroups')
             ->with($this->testUser)
@@ -269,7 +182,7 @@ class AutoGroupsManagerTest extends TestCase
             ->withConsecutive(['autogroup1'], ['autogroup2'])
             ->willReturnOnConsecutiveCalls([$groupMock], [$groupMock]);
 
-        $agm = $this->initEventHandlerTests(['autogroup1', 'autogroup2'], ['overridegroup1', 'overridegroup2']);
+        $agm = $this->createAutoGroupsManager(['autogroup1', 'autogroup2'], ['overridegroup1', 'overridegroup2']);
         $agm->addAndRemoveAutoGroups($event);
     }
 
@@ -280,6 +193,7 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getUser')
             ->willReturn($this->testUser);
 
+        // User is in an override group but not in any auto group, so removeUser should never be called
         $this->groupManager->expects($this->once())
             ->method('getUserGroups')
             ->with($this->testUser)
@@ -295,7 +209,7 @@ class AutoGroupsManagerTest extends TestCase
             ->withConsecutive(['autogroup1'], ['autogroup2'])
             ->willReturnOnConsecutiveCalls([$groupMock], [$groupMock]);
 
-        $agm = $this->initEventHandlerTests(['autogroup1', 'autogroup2'], ['overridegroup1', 'overridegroup2']);
+        $agm = $this->createAutoGroupsManager(['autogroup1', 'autogroup2'], ['overridegroup1', 'overridegroup2']);
         $agm->addAndRemoveAutoGroups($event);
     }
 
@@ -311,9 +225,10 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getGroup')
             ->willReturn($groupMock);
 
+        // autogroup2 is configured as an auto group, so deletion must be prevented
         $this->expectException(OCSBadRequestException::class);
 
-        $agm = $this->initEventHandlerTests(['autogroup1', 'autogroup2'], ['overridegroup1', 'overridegroup2']);
+        $agm = $this->createAutoGroupsManager(['autogroup1', 'autogroup2'], ['overridegroup1', 'overridegroup2']);
         $agm->handleGroupDeletion($event);
     }
 
@@ -329,17 +244,20 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getGroup')
             ->willReturn($groupMock);
 
-        $agm = $this->initEventHandlerTests(['autogroup1', 'autogroup2'], ['overridegroup1', 'overridegroup2']);
+        // 'some other group' is not referenced in config, so deletion should be allowed
+        $agm = $this->createAutoGroupsManager(['autogroup1', 'autogroup2'], ['overridegroup1', 'overridegroup2']);
         $agm->handleGroupDeletion($event);
     }
 
     public function testConfigMigrationForCreationOnlyTrue()
     {
+        // Legacy creation_only=true means modification_hook should be migrated to false
         $agm = $this->configMigrationTestImpl('true', 'false');
     }
 
     public function testConfigMigrationForCreationOnlyFalse()
     {
+        // Legacy creation_only=false means modification_hook should be migrated to true
         $agm = $this->configMigrationTestImpl('false', 'true');
     }
 }

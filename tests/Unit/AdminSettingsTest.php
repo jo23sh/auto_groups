@@ -3,7 +3,7 @@
 /**
  * @copyright Copyright (c) 2020
  *
- * @author Josua Hunziker <der@digitalwerker.ch>
+ * @author Josua Hunziker <josh@o23.ch>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -71,16 +71,19 @@ class AdminSettingsTest extends TestCase
 
     public function testSection()
     {
+        // Settings must appear in the 'additional' admin section
         $this->assertEquals('additional', $this->adminSettings->getSection());
     }
 
     public function testPriority()
     {
+        // Priority 100 places the form towards the bottom of the section
         $this->assertEquals(100, $this->adminSettings->getPriority());
     }
 
     public function testForm()
     {
+        // getForm() must read all five config values and pass them to the template as parameters
         $this->config->expects($this->exactly(5))
             ->method('getAppValue')
             ->withConsecutive(

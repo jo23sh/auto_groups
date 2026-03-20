@@ -4,12 +4,12 @@ Automatically add users to specified Auto Groups, except for those belonging to 
 
 ## Test Status
 
-| Nextcloud Server Branch                                       |                                                 Unit & Integration Tests                                                  |                                                                 Code Coverage                                                                 |
+| Nextcloud Server Branch                                       |                                                 Unit & Integration Tests                                                  |                                                                 Code Coverage                                                                 |
 | ------------------------------------------------------------- | :-----------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------: |
-| [stable30](https://github.com/nextcloud/server/tree/stable30) | ![Unit and Integration Tests](https://github.com/stjosh/auto_groups/workflows/Unit%20and%20Integration%20Tests/badge.svg) |  [![codecov](https://codecov.io/gh/stjosh/auto_groups/branch/master/graph/badge.svg?flag=stable30)](https://codecov.io/gh/stjosh/auto_groups) |
-| [stable31](https://github.com/nextcloud/server/tree/stable31) | ![Unit and Integration Tests](https://github.com/stjosh/auto_groups/workflows/Unit%20and%20Integration%20Tests/badge.svg) |  [![codecov](https://codecov.io/gh/stjosh/auto_groups/branch/master/graph/badge.svg?flag=stable31)](https://codecov.io/gh/stjosh/auto_groups) |
-| [stable32](https://github.com/nextcloud/server/tree/stable32) | ![Unit and Integration Tests](https://github.com/stjosh/auto_groups/workflows/Unit%20and%20Integration%20Tests/badge.svg) |  [![codecov](https://codecov.io/gh/stjosh/auto_groups/branch/master/graph/badge.svg?flag=stable31)](https://codecov.io/gh/stjosh/auto_groups) |
-| [master](https://github.com/nextcloud/server/tree/master)     | ![Unit and Integration Tests](https://github.com/stjosh/auto_groups/workflows/Unit%20and%20Integration%20Tests/badge.svg) |   [![codecov](https://codecov.io/gh/stjosh/auto_groups/branch/master/graph/badge.svg?flag=master)](https://codecov.io/gh/stjosh/auto_groups)  |
+| [stable31](https://github.com/nextcloud/server/tree/stable31) | ![Unit and Integration Tests](https://github.com/stjosh/auto_groups/workflows/Unit%20and%20Integration%20Tests/badge.svg) |  [![codecov](https://codecov.io/gh/stjosh/auto_groups/branch/master/graph/badge.svg?flag=stable31)](https://codecov.io/gh/stjosh/auto_groups) |
+| [stable32](https://github.com/nextcloud/server/tree/stable32) | ![Unit and Integration Tests](https://github.com/stjosh/auto_groups/workflows/Unit%20and%20Integration%20Tests/badge.svg) |  [![codecov](https://codecov.io/gh/stjosh/auto_groups/branch/master/graph/badge.svg?flag=stable32)](https://codecov.io/gh/stjosh/auto_groups) |
+| [stable33](https://github.com/nextcloud/server/tree/stable33) | ![Unit and Integration Tests](https://github.com/stjosh/auto_groups/workflows/Unit%20and%20Integration%20Tests/badge.svg) |  [![codecov](https://codecov.io/gh/stjosh/auto_groups/branch/master/graph/badge.svg?flag=stable33)](https://codecov.io/gh/stjosh/auto_groups) |
+| [master](https://github.com/nextcloud/server/tree/master) (NC34, experimental) | ![Unit and Integration Tests](https://github.com/stjosh/auto_groups/workflows/Unit%20and%20Integration%20Tests/badge.svg) |   [![codecov](https://codecov.io/gh/stjosh/auto_groups/branch/master/graph/badge.svg?flag=master)](https://codecov.io/gh/stjosh/auto_groups)  |
 
 Unit and Integration Tests are executed with PHP v8.2 and v8.3.
 
@@ -34,8 +34,6 @@ and then access your test instance on http://localhost:8080. The `auto_groups` a
 
 - [Everyone Group](https://apps.nextcloud.com/apps/group_everyone): The "Everyone Group" app adds a virtual Group Backend, always returning all users. In contrast, "Auto Groups" operates on "real" groups in your normal Group Backend. Additionally, it is possible to specify Override Groups which will prevent users from being added to the Auto Group(s).
 - [Default Group](https://apps.nextcloud.com/apps/defaultgroup): "Auto Groups" is actually a modernized and maintaned fork of "Default Group", which seems to be abandoned since NC12 or so. In terms of functionality, they are almost identical.
-
-In addition, I plan to add some more features over time, e.g., "Union Groups" - see the [Milestone Plans](https://github.com/stjosh/auto_groups/milestones) for more details.
 
 ## Issue Tracker / Contributions
 

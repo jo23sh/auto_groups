@@ -7,7 +7,7 @@ on:
       - master
       - stable*
   schedule:
-    - cron: '0 2 * * *'
+    - cron: "0 2 * * *"
 
 env:
   APP_NAME: auto_groups
@@ -22,13 +22,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['8.2', '8.3']
-        databases: ['sqlite']
-        server-versions:
-          ['stable30', 'stable31', 'stable32']
+        php-versions: ["8.2", "8.3"]
+        databases: ["sqlite"]
+        server-versions: ["stable31", "stable32", "stable33"]
         experimental: [false]
         include:
-          - php-versions: '8.4'
+          - php-versions: "8.4"
             databases: sqlite
             server-versions: master
             experimental: true

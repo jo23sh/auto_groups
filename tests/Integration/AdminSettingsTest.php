@@ -3,7 +3,7 @@
 /**
  * @copyright Copyright (c) 2020
  *
- * @author Josua Hunziker <der@digitalwerker.ch>
+ * @author Josua Hunziker <josh@o23.ch>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -49,13 +49,14 @@ class AdminSettingsTest extends TestCase
         $this->app = new Application();
         $this->container = $this->app->getContainer();
 
-        $this->settingsManager = $this->container->getServer()->getSettingsManager();
+        $this->settingsManager = $this->container->query(IManager::class);
     }
 
     public function testAppSettingsExist()
     {
         $settings = $this->settingsManager->getAdminSettings('additional');
 
+        // The app must register its Admin settings class at priority 100 in the 'additional' section
         $this->assertArrayHasKey(100, $settings);
         $this->assertIsArray($settings[100]);
         $adminSettings = $settings[100][0];
@@ -66,6 +67,7 @@ class AdminSettingsTest extends TestCase
     {
         $appSettings = $this->settingsManager->getAdminSettings('additional')[100][0];
 
+        // getForm() must return a TemplateResponse (the actual template rendering is not tested here)
         $templateResponse = $appSettings->getForm();
         $this->assertInstanceOf(TemplateResponse::class, $templateResponse);
 

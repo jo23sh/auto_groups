@@ -2,8 +2,8 @@
 /**
  * @copyright Copyright (c) 2020
  *
- * @author Josua Hunziker <der@digitalwerker.ch>
- * 
+ * @author Josua Hunziker <josh@o23.ch>
+ *
  * Based on the work of Ján Stibila <nextcloud@stibila.eu>
  *
  * @license AGPL-3.0
@@ -25,17 +25,41 @@
 namespace OCA\AutoGroups\AppInfo;
 
 use OCP\AppFramework\App;
+use OCP\AppFramework\Bootstrap\IBootContext;
+use OCP\AppFramework\Bootstrap\IBootstrap;
+use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\User\Events\UserCreatedEvent;
+use OCP\User\Events\UserFirstTimeLoggedInEvent;
+use OCP\User\Events\PostLoginEvent;
+use OCP\User\Events\UserLoggedInEvent;
+use OCP\Group\Events\UserAddedEvent;
+use OCP\Group\Events\UserRemovedEvent;
+use OCP\Group\Events\BeforeGroupDeletedEvent;
+
 use OCA\AutoGroups\AutoGroupsManager;
+use OCA\AutoGroups\Listener\AutoGroupsListener;
 
-class Application extends App {
-
-	private $autoGroupsManager;
-
-	/**
-	 * Application constructor.
-	 */
-	public function __construct() {
+class Application extends App implements IBootstrap
+{
+	public function __construct()
+	{
 		parent::__construct('auto_groups');
-		$this->autoGroupsManager = $this->getContainer()->query(AutoGroupsManager::class);
+	}
+
+	public function register(IRegistrationContext $context): void
+	{
+		$context->registerEventListener(UserCreatedEvent::class, AutoGroupsListener::class);
+		$context->registerEventListener(UserFirstTimeLoggedInEvent::class, AutoGroupsListener::class);
+		$context->registerEventListener(UserAddedEvent::class, AutoGroupsListener::class);
+		$context->registerEventListener(UserRemovedEvent::class, AutoGroupsListener::class);
+		$context->registerEventListener(PostLoginEvent::class, AutoGroupsListener::class);
+		$context->registerEventListener(UserLoggedInEvent::class, AutoGroupsListener::class);
+		$context->registerEventListener(BeforeGroupDeletedEvent::class, AutoGroupsListener::class);
+	}
+
+	public function boot(IBootContext $context): void
+	{
+		// Instantiate AutoGroupsManager to trigger legacy config migration
+		$context->getAppContainer()->query(AutoGroupsManager::class);
 	}
 }
