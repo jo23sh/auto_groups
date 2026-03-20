@@ -151,10 +151,13 @@ class EventsTest extends TestCase
         $this->assertTrue($autogroup1->inGroup($loginUser) && $autogroup2->inGroup($loginUser));
 
         // Phase 2: add user to override group (modification_hook=false so no auto-trigger),
-        // then login should REMOVE them from auto groups
+        // then login should REMOVE them from auto groups.
+        // Re-fetch group objects to avoid stale per-Group $users cache from Phase 1.
         $overridegroup->addUser($loginUser);
         $this->eventDispatcher->dispatchTyped(new PostLoginEvent($loginUser, 'loginuser', 'testPassword', false));
-        $this->assertFalse($autogroup1->inGroup($loginUser) || $autogroup2->inGroup($loginUser));
+        $freshGroup1 = $this->groupManager->get('autogroup1');
+        $freshGroup2 = $this->groupManager->get('autogroup2');
+        $this->assertFalse($freshGroup1->inGroup($loginUser) || $freshGroup2->inGroup($loginUser));
     }
 
 
