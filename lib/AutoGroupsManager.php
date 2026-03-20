@@ -4,7 +4,7 @@
  * @copyright Copyright (c) 2020
  *
  * @author Josua Hunziker <der@digitalwerker.ch>
- * 
+ *
  * Based on the work of Ján Stibila <nextcloud@stibila.eu>
  *
  * @license AGPL-3.0
@@ -25,16 +25,7 @@
 
 namespace OCA\AutoGroups;
 
-use OCP\User\Events\UserCreatedEvent;
-use OCP\User\Events\UserFirstTimeLoggedInEvent;
-use OCP\User\Events\PostLoginEvent;
-use OCP\User\Events\UserLoggedInEvent;
-use OCP\Group\Events\UserAddedEvent;
-use OCP\Group\Events\UserRemovedEvent;
-use OCP\Group\Events\BeforeGroupDeletedEvent;
-
 use OCP\IGroupManager;
-use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IConfig;
 use OCP\IL10N;
 
@@ -50,9 +41,9 @@ class AutoGroupsManager
     private $l;
 
     /**
-     * Listener manager constructor.
+     * AutoGroupsManager constructor.
      */
-    public function __construct(IGroupManager $groupManager, IEventDispatcher $eventDispatcher, IConfig $config, LoggerInterface $logger, IL10N $l)
+    public function __construct(IGroupManager $groupManager, IConfig $config, LoggerInterface $logger, IL10N $l)
     {
         $this->groupManager = $groupManager;
         $this->logger = $logger;
@@ -96,39 +87,10 @@ class AutoGroupsManager
                 $this->config->deleteAppValue("AutoGroups", "override_groups");
             }
         }
-
-        // The callback as a PHP callable
-        $groupAssignmentCallback = [$this, 'addAndRemoveAutoGroups'];
-
-        // Get the hook configs
-        $creationHook = $this->config->getAppValue("auto_groups", "creation_hook", 'true');
-        $modificationHook = $this->config->getAppValue("auto_groups", "modification_hook", 'true');
-        $loginHook = $this->config->getAppValue("auto_groups", "login_hook", 'false');
-
-        // If creation hook is enabled, add user to / remove user from auto groups on creation
-        if (filter_var($creationHook, FILTER_VALIDATE_BOOLEAN)) {
-            $eventDispatcher->addListener(UserCreatedEvent::class, $groupAssignmentCallback);
-            $eventDispatcher->addListener(UserFirstTimeLoggedInEvent::class, $groupAssignmentCallback);
-        }
-
-        // If modification hook is enabled, add user to / remove user from auto groups on every modification of user groups
-        if (filter_var($modificationHook, FILTER_VALIDATE_BOOLEAN)) {
-            $eventDispatcher->addListener(UserAddedEvent::class, $groupAssignmentCallback);
-            $eventDispatcher->addListener(UserRemovedEvent::class, $groupAssignmentCallback);
-        }
-
-        // If login hook is enabled, add user to / remove user from auto groups on every successful login
-        if (filter_var($loginHook, FILTER_VALIDATE_BOOLEAN)) {
-            $eventDispatcher->addListener(PostLoginEvent::class, $groupAssignmentCallback);
-            $eventDispatcher->addListener(UserLoggedInEvent::class, $groupAssignmentCallback);
-        }
-
-        // Handle group deletion events
-        $eventDispatcher->addListener(BeforeGroupDeletedEvent::class, [$this, 'handleGroupDeletion']);
     }
 
     /**
-     * The event handler to check group assignmnet for a user
+     * The event handler to check group assignment for a user
      */
     public function addAndRemoveAutoGroups($event)
     {
@@ -166,9 +128,9 @@ class AutoGroupsManager
 
     /**
      * The event handler to handle group deletions
-     * 
+     *
      * @throws OCSBadRequestException
-     * 
+     *
      */
     public function handleGroupDeletion($event)
     {
@@ -178,7 +140,7 @@ class AutoGroupsManager
 
         $allGroupNames = array_merge($groupNames, $overrideGroupNames);
 
-        // Get group name of group do delete
+        // Get group name of group to delete
         $groupNameToDelete = $event->getGroup()->getGID();
 
         // Prevent deletion if group to delete is configured in AutoGroups
