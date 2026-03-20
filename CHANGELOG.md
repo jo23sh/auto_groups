@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.7.0 - 2026-03-20
+
+### Changed
+
+- Migrate event listener registration to `IBootstrap`/`registerEventListener()` for compatibility with NC34, replacing the deprecated `IEventDispatcher::addListener()` approach
+- Compatibility up to NC34
+
+### Fixed
+
+- Restore login hook test which was previously broken due to hook config being read at app instantiation time rather than at event dispatch time
+
 ## 1.6.2 - 2025-03-03
 
 ### Fixed
