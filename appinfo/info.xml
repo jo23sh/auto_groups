@@ -23,7 +23,7 @@ Note that this app prevents group deletions for groups referenced as Auto Groups
 * [Default Group](https://apps.nextcloud.com/apps/defaultgroup): "Auto Groups" is actually a modernized and maintaned fork of "Default Group", which seems to be abandoned since NC12 or so. In terms of functionality, they are almost identical.
 
     </description>
-    <version>1.7.0</version>
+    <version>1.7.1</version>
     <licence>agpl</licence>
     <author mail="josh@o23.ch" >Josua Hunziker</author>
     <namespace>AutoGroups</namespace>

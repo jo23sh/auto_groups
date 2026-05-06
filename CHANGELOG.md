@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.7.1 - 2026-05-06
+
+### Fixed
+
+- Fix admin.js to properly pass boolean values to API. (#90)
+
 ## 1.7.0 - 2026-03-20
 
 ### Changed
