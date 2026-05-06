@@ -60,15 +60,15 @@ $(document).ready(function () {
     })
 
     $creationHook.change(function (ev) {
-      OCP.AppConfig.setValue('auto_groups', 'creation_hook', this.checked)
+      OCP.AppConfig.setValue('auto_groups', 'creation_hook', this.checked ? 'true' : 'false')
     })
 
     $modificationHook.change(function (ev) {
-      OCP.AppConfig.setValue('auto_groups', 'modification_hook', this.checked)
+      OCP.AppConfig.setValue('auto_groups', 'modification_hook', this.checked ? 'true' : 'false')
     })
 
     $loginHook.change(function (ev) {
-      OCP.AppConfig.setValue('auto_groups', 'login_hook', this.checked)
+      OCP.AppConfig.setValue('auto_groups', 'login_hook', this.checked ? 'true' : 'false')
     })
   }, 0)
 })
