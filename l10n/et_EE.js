@@ -1,0 +1,9 @@
+OC.L10N.register(
+    "auto_groups",
+    {
+    "Group \"%1$s\" is used in the Auto Groups App and cannot be deleted." : "„%1$s“ grupp on kasutusel Automaatsete gruppide rakenduse poolt ning seda ei saa kustutada.",
+    "Auto Groups" : "Automaatsed grupid",
+    "Automatically adds all users to one or multiple specified groups." : "Võimaldab kasutajate automaatset lisamist ühte või mitmesse eelseadistatud gruppi.",
+    "Automatically add all users to these groups." : "Lisa kõik kasutajad automaatselt nendesse gruppidesse."
+},
+"nplurals=2; plural=(n != 1);");
