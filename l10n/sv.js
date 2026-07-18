@@ -3,13 +3,13 @@ OC.L10N.register(
     {
     "Group \"%1$s\" is used in the Auto Groups App and cannot be deleted." : "Grupp \"%1$s\" används i Auto Groups-appen och kan inte tas bort.",
     "Auto Groups" : "Auto Groups",
-    "Automatically adds all users to one or multiple specified groups." : "Lägg automatiskt till alla användare i en eller fler angivna grupper.",
+    "Automatically adds all users to one or multiple specified groups." : "Lägger automatiskt till alla användare i en eller flera angivna grupper.",
     "Automatically add all users to these groups." : "Lägg automatiskt till alla användare i dessa grupper.",
-    "Override Groups:" : "Åsidosätt grupper:",
-    "Users which are member of at least one of these groups are removed from the auto groups. This is also the case if the user is added to one of these groups after creation, i.e., membership in the override groups is checked after each group modification." : "Användare som är medlemmar i minst en av dessa grupper tas bort från auto-grupper. Detta sker även om användaren läggs till i en av dessa grupper efter skapelse, dvs. medlemskap i dessa åsidosatta grupper kontrolleras efter varje gruppförändring.",
-    "Set Auto Group membership on user creation." : "Sätt autogruppsmedlemskap vid användarregistrering",
-    "If checked, Auto Group membership will be enforced on user creation." : "Om bockad, tvingas autogruppsmedlemskap vid användarregistrering. ",
-    "Check for correct Auto Group membership on every login." : "Kontrollera korrekt medlemskap i auto-grupper vid varje inloggning.",
-    "Enable this setting to enforce proper Auto Group membership on every successful login. This is useful if either users are not created in Nextcloud (e.g., with external user backends) or to enforce correct group membership for all users when the Auto Groups / Override Groups have changed." : "Aktivera denna inställning för att upprätthålla korrekt Auto Group-medlemskap vid varje lyckad inloggning. Detta är användbart om användare antingen skapas utanför Nextcloud (t.ex. med externa användarsystem) eller för att framtvinga korrekta gruppmedlemskap för alla användare när auto-grupper eller åsidosatta grupper har ändrats."
+    "Override Groups:" : "Undantagsgrupper:",
+    "Users which are member of at least one of these groups are removed from the auto groups. This is also the case if the user is added to one of these groups after creation, i.e., membership in the override groups is checked after each group modification." : "Användare som är medlemmar i minst en av dessa grupper tas bort från de automatiska grupperna. Detta gäller även om användaren läggs till i en undantagsgrupp efter att kontot har skapats, eftersom medlemskapet i undantagsgrupperna kontrolleras efter varje gruppändring.",
+    "Set Auto Group membership on user creation." : "Ange medlemskap i automatiska grupper när användare skapas.",
+    "If checked, Auto Group membership will be enforced on user creation." : "När detta är markerat tillämpas medlemskapet i automatiska grupper när användare skapas.",
+    "Check for correct Auto Group membership on every login." : "Kontrollera medlemskapet i automatiska grupper vid varje inloggning.",
+    "Enable this setting to enforce proper Auto Group membership on every successful login. This is useful if either users are not created in Nextcloud (e.g., with external user backends) or to enforce correct group membership for all users when the Auto Groups / Override Groups have changed." : "Aktivera inställningen för att säkerställa korrekt medlemskap i automatiska grupper vid varje lyckad inloggning. Detta är användbart om användare skapas utanför Nextcloud, till exempel via externa användarkällor, eller om gruppmedlemskapen ska uppdateras när de automatiska grupperna eller undantagsgrupperna ändras."
 },
 "nplurals=2; plural=(n != 1);");
