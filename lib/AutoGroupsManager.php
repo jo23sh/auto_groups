@@ -25,31 +25,29 @@
 
 namespace OCA\AutoGroups;
 
+use OCP\AppFramework\OCS\OCSBadRequestException;
+use OCP\EventDispatcher\Event;
 use OCP\IGroupManager;
 use OCP\IConfig;
 use OCP\IL10N;
-
-use OCP\AppFramework\OCS\OCSBadRequestException;
+use OCP\IUserManager;
 
 use Psr\Log\LoggerInterface;
 
 class AutoGroupsManager
 {
-    private $groupManager;
-    private $logger;
-    private $config;
-    private $l;
 
     /**
      * AutoGroupsManager constructor.
      */
-    public function __construct(IGroupManager $groupManager, IConfig $config, LoggerInterface $logger, IL10N $l)
+    public function __construct(
+		private readonly IGroupManager $groupManager,
+		private readonly IUserManager $userManager,
+		private readonly IConfig $config,
+		private readonly LoggerInterface $logger,
+		private readonly IL10N $l,
+	)
     {
-        $this->groupManager = $groupManager;
-        $this->logger = $logger;
-        $this->config = $config;
-        $this->l = $l;
-
         // Migrate old config if necessary
         $creationOnly = $this->config->getAppValue("AutoGroups", "creation_only");
         if ($creationOnly !== '') {
@@ -92,7 +90,7 @@ class AutoGroupsManager
     /**
      * The event handler to check group assignment for a user
      */
-    public function addAndRemoveAutoGroups($event)
+    public function addAndRemoveAutoGroups(Event $event): void
     {
         // Get configuration
         $groupNames = json_decode($this->config->getAppValue("auto_groups", "auto_groups", '[]'));
@@ -100,6 +98,13 @@ class AutoGroupsManager
 
         // Get user information
         $user = $event->getUser();
+
+		if (!$this->userManager->userExists($user->getUID())) {
+			// Avoid doing any group manipulation when running inside
+			// OC\User\BackgroundJobs\CleanupDeletedUsers
+			return;
+		}
+
         $userGroupNames = $this->groupManager->getUserGroupIds($user);
 
         // Notice message for Auto Group Hook Execution
