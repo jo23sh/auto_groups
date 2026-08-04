@@ -114,7 +114,7 @@ class AutoGroupsManagerTest extends TestCase
 
         // User belongs to no groups, so they should be added to the auto group
         $this->groupManager->expects($this->once())
-            ->method('getUserGroups')
+            ->method('getUserGroupIds')
             ->with($this->testUser)
             ->willReturn([]);
 
@@ -141,9 +141,9 @@ class AutoGroupsManagerTest extends TestCase
 
         // User is already in the auto group, so addUser should never be called
         $this->groupManager->expects($this->once())
-            ->method('getUserGroups')
+            ->method('getUserGroupIds')
             ->with($this->testUser)
-            ->willReturn(['autogroup' => []]);
+            ->willReturn(['autogroup']);
 
         $autogroup = $this->createMock(IGroup::class);
         $autogroup->expects($this->once())->method('getGID')->willReturn('autogroup');
@@ -168,9 +168,9 @@ class AutoGroupsManagerTest extends TestCase
 
         // User belongs to an override group, so they should be removed from all auto groups
         $this->groupManager->expects($this->once())
-            ->method('getUserGroups')
+            ->method('getUserGroupIds')
             ->with($this->testUser)
-            ->willReturn(['autogroup1' => [], 'overridegroup1' => [], 'autogroup2' => []]);
+            ->willReturn(['autogroup1', 'overridegroup1', 'autogroup2']);
 
         $groupMock = $this->createMock(IGroup::class);
         $groupMock->expects($this->exactly(2))->method('getGID')->willReturnOnConsecutiveCalls('autogroup1', 'autogroup2');
@@ -195,9 +195,9 @@ class AutoGroupsManagerTest extends TestCase
 
         // User is in an override group but not in any auto group, so removeUser should never be called
         $this->groupManager->expects($this->once())
-            ->method('getUserGroups')
+            ->method('getUserGroupIds')
             ->with($this->testUser)
-            ->willReturn(['overridegroup1' => []]);
+            ->willReturn(['overridegroup1']);
 
         $groupMock = $this->createMock(IGroup::class);
         $groupMock->expects($this->exactly(2))->method('getGID')->willReturnOnConsecutiveCalls('autogroup1', 'autogroup2');
