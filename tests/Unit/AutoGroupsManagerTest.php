@@ -25,6 +25,7 @@
 namespace OCA\AutoGroups\Tests\Unit;
 
 use OCP\Group\Events\BeforeGroupDeletedEvent;
+use OCP\IUserManager;
 use OCP\User\Events\UserCreatedEvent;
 
 use OCP\IGroupManager;
@@ -38,6 +39,7 @@ use OCP\IGroup;
 
 use OCA\AutoGroups\AutoGroupsManager;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 
 use Test\TestCase;
@@ -45,19 +47,23 @@ use Test\TestCase;
 
 class AutoGroupsManagerTest extends TestCase
 {
-    private $groupManager;
-    private $config;
-    private $logger;
-    private $il10n;
+    private IGroupManager&MockObject $groupManager;
+	private IUserManager&MockObject $userManager;
+    private IConfig&MockObject $config;
+    private LoggerInterface&MockObject $logger;
+    private IL10N&MockObject $il10n;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->groupManager = $this->createMock(IGroupManager::class);
+		$this->userManager = $this->createMock(IUserManager::class);
         $this->config = $this->createMock(IConfig::class);
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->il10n = $this->createMock(IL10N::class);
+
+		$this->userManager->method('userExists')->willReturn(true);
 
         $this->testUser = $this->createMock(IUser::class);
         $this->testUser->expects($this->any())
@@ -65,7 +71,7 @@ class AutoGroupsManagerTest extends TestCase
             ->willReturn('Test User');
     }
 
-    private function createAutoGroupsManager($auto_groups = [], $override_groups = [])
+    private function createAutoGroupsManager($auto_groups = [], $override_groups = []): AutoGroupsManager
     {
         $this->config->method('getAppValue')
             ->willReturnCallback(function ($app, $key, $default = '') use ($auto_groups, $override_groups) {
@@ -81,10 +87,10 @@ class AutoGroupsManagerTest extends TestCase
                 return $default;
             });
 
-        return new AutoGroupsManager($this->groupManager, $this->config, $this->logger, $this->il10n);
+        return new AutoGroupsManager($this->groupManager, $this->userManager, $this->config, $this->logger, $this->il10n);
     }
 
-    private function configMigrationTestImpl($creationOnly, $expectedModification)
+    private function configMigrationTestImpl($creationOnly, $expectedModification): AutoGroupsManager
     {
         $this->config->expects($this->exactly(2))
             ->method('getAppValue')
@@ -102,7 +108,7 @@ class AutoGroupsManagerTest extends TestCase
             ->method('deleteAppValue')
             ->with('AutoGroups', 'creation_only');
 
-        return new AutoGroupsManager($this->groupManager, $this->config, $this->logger, $this->il10n);
+        return new AutoGroupsManager($this->groupManager, $this->userManager, $this->config, $this->logger, $this->il10n);
     }
 
     public function testAddingToAutoGroups()
