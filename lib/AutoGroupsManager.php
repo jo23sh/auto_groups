@@ -100,7 +100,7 @@ class AutoGroupsManager
 
         // Get user information
         $user = $event->getUser();
-        $userGroupNames = array_keys($this->groupManager->getUserGroups($user));
+        $userGroupNames = $this->groupManager->getUserGroupIds($user);
 
         // Notice message for Auto Group Hook Execution
         $this->logger->debug('AutoGroups hook triggered for user ' . $user->getDisplayName());
