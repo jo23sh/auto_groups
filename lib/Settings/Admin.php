@@ -1,9 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @copyright Copyright (c) 2020
  *
  * @author Josua Hunziker <josh@o23.ch>
- * 
+ *
  * Based on the work of Ján Stibila <nextcloud@stibila.eu>
  *
  * @license AGPL-3.0
@@ -25,27 +28,25 @@
 namespace OCA\AutoGroups\Settings;
 
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\IConfig;
+use OCP\AppFramework\Services\IAppConfig;
 use OCP\Settings\ISettings;
 
 class Admin implements ISettings
 {
-
-        /** @var IConfig */
-        private $config;
-
-        public function __construct(IConfig $config)
+        public function __construct(
+			private readonly IAppConfig $appConfig,
+		)
         {
-                $this->config = $config;
         }
 
-        public function getForm()
+	#[\Override]
+        public function getForm(): TemplateResponse
         {
-                $autoGroups = json_decode($this->config->getAppValue("auto_groups", "auto_groups", '[]'));
-                $overrideGroups = json_decode($this->config->getAppValue("auto_groups", "override_groups", '[]'));
-                $creationHook = $this->config->getAppValue("auto_groups", "creation_hook", 'true');
-                $modificationHook = $this->config->getAppValue("auto_groups", "modification_hook", 'true');
-                $loginHook = $this->config->getAppValue("auto_groups", "login_hook", 'false');
+                $autoGroups = $this->appConfig->getAppValueArray("auto_groups");
+                $overrideGroups = $this->appConfig->getAppValueArray("override_groups");
+                $creationHook = $this->appConfig->getAppValueBool("creation_hook", true);
+                $modificationHook = $this->appConfig->getAppValueBool("modification_hook", true);
+                $loginHook = $this->appConfig->getAppValueBool("login_hook");
 
                 $parameters = [
                         'auto_groups' => implode('|', $autoGroups),
@@ -58,20 +59,14 @@ class Admin implements ISettings
                 return new TemplateResponse('auto_groups', 'admin', $parameters);
         }
 
-        /**
-         * @return string the section ID
-         */
-        public function getSection()
+		#[\Override]
+        public function getSection(): string
         {
                 return 'additional';
         }
 
-        /**
-         * @return int whether the form should be rather on the top or bottom of
-         * the admin section. The forms are arranged in ascending order of the
-         * priority values. It is required to return a value between 0 and 100.
-         */
-        public function getPriority()
+		#[\Override]
+        public function getPriority(): int
         {
                 return 100;
         }

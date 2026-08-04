@@ -25,10 +25,12 @@
 namespace OCA\AutoGroups\Tests\Unit;
 
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\AppFramework\Services\IAppConfig;
 use OCP\IConfig;
 
 use OCA\AutoGroups\Settings\Admin;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use Test\TestCase;
 
 // Mock Functions
@@ -39,7 +41,7 @@ function script($script, $scope)
 
 function style($style, $scope)
 {
-    print ('<STYLE>' . $script . '</STYLE><SCOPE>' . $scope . '</SCOPE>');
+    print ('<STYLE>' . $style . '</STYLE><SCOPE>' . $scope . '</SCOPE>');
 }
 
 function p($string)
@@ -58,15 +60,15 @@ class Language
 // The actual test class
 class AdminSettingsTest extends TestCase
 {
-    private $config;
-    private $adminSettings;
+    private IAppConfig&MockObject $appConfig;
+    private Admin $adminSettings;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->config = $this->createMock(IConfig::class);
+        $this->appConfig = $this->createMock(IAppConfig::class);
 
-        $this->adminSettings = new Admin($this->config);
+        $this->adminSettings = new Admin($this->appConfig);
     }
 
     public function testSection()
@@ -84,16 +86,20 @@ class AdminSettingsTest extends TestCase
     public function testForm()
     {
         // getForm() must read all five config values and pass them to the template as parameters
-        $this->config->expects($this->exactly(5))
-            ->method('getAppValue')
-            ->withConsecutive(
-                ['auto_groups', 'auto_groups', '[]'],
-                ['auto_groups', 'override_groups', '[]'],
-                ['auto_groups', 'creation_hook', 'true'],
-                ['auto_groups', 'modification_hook', 'true'],
-                ['auto_groups', 'login_hook', 'false']
-            )
-            ->willReturnOnConsecutiveCalls(json_encode(['auto1', 'auto2']), json_encode(['override1', 'override2']), true, true);
+        $this->appConfig->expects($this->exactly(2))
+            ->method('getAppValueArray')
+            ->willReturnMap([
+                ['auto_groups', ['auto1', 'auto2']],
+                ['override_groups', ['override1', 'override2']],
+			]);
+
+		$this->appConfig->expects($this->exactly(3))
+			->method('getAppValueBool')
+			->willReturnMap([
+				['creation_hook', true, true],
+				['modification_hook', true, true],
+				['login_hook', false]
+			]);
 
         $response = $this->adminSettings->getForm();
 
@@ -119,7 +125,7 @@ class AdminSettingsTest extends TestCase
        include 'templates/admin.php';
        $html = ob_get_contents();
        @ob_end_clean();
-        
+
         $this->assertIsString($html);
         $this->assertStringContainsString('<p class="auto_groups_settings_section">', $html);
         $this->assertStringContainsString('<input name="auto_groups" id="auto_groups" value="autogroup1|autogroup2"', $html);

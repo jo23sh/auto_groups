@@ -4,7 +4,7 @@
  * @copyright Copyright (c) 2020
  *
  * @author Josua Hunziker <josh@o23.ch>
- * 
+ *
  * Based on the work of Ján Stibila <nextcloud@stibila.eu>
  *
  * @license AGPL-3.0
@@ -26,9 +26,9 @@
 script('auto_groups', 'admin');
 style('auto_groups', 'admin');
 
-$creation_hook_checked = filter_var($_['creation_hook'], FILTER_VALIDATE_BOOLEAN) ? 'checked' : '';
-$modification_hook_checked = filter_var($_['modification_hook'], FILTER_VALIDATE_BOOLEAN) ? 'checked' : '';
-$login_hook_checked = filter_var($_['login_hook'], FILTER_VALIDATE_BOOLEAN) ? 'checked' : '';
+$creation_hook_checked = $_['creation_hook'] ? 'checked' : '';
+$modification_hook_checked = $_['modification_hook'] ? 'checked' : '';
+$login_hook_checked = $_['login_hook'] ? 'checked' : '';
 
 ?>
 
