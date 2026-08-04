@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.7.2 - 2026-08-04
+
+### Changed
+
+- Compatibility up to NC35, drop EOL version NC31
+
 ## 1.7.1 - 2026-05-06
 
 ### Fixed
