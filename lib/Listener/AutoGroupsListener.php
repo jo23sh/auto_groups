@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @copyright Copyright (c) 2020
  *
@@ -23,6 +25,7 @@
 
 namespace OCA\AutoGroups\Listener;
 
+use OCP\AppFramework\Services\IAppConfig;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\User\Events\UserCreatedEvent;
@@ -32,30 +35,30 @@ use OCP\User\Events\UserLoggedInEvent;
 use OCP\Group\Events\UserAddedEvent;
 use OCP\Group\Events\UserRemovedEvent;
 use OCP\Group\Events\BeforeGroupDeletedEvent;
-use OCP\IConfig;
 
 use OCA\AutoGroups\AutoGroupsManager;
 
-/** @template-implements IEventListener<Event> */
+/** @template-implements IEventListener<UserCreatedEvent|UserFirstTimeLoggedInEvent|UserAddedEvent|UserRemovedEvent|PostLoginEvent|UserLoggedInEvent|BeforeGroupDeletedEvent> */
 class AutoGroupsListener implements IEventListener
 {
     public function __construct(
-        private AutoGroupsManager $manager,
-        private IConfig $config
+        private readonly AutoGroupsManager $manager,
+        private readonly IAppConfig $appConfig
     ) {}
 
+	#[\Override]
     public function handle(Event $event): void
     {
         if ($event instanceof UserCreatedEvent || $event instanceof UserFirstTimeLoggedInEvent) {
-            if (filter_var($this->config->getAppValue('auto_groups', 'creation_hook', 'true'), FILTER_VALIDATE_BOOLEAN)) {
+            if ($this->appConfig->getAppValueBool('creation_hook', true)) {
                 $this->manager->addAndRemoveAutoGroups($event);
             }
         } elseif ($event instanceof UserAddedEvent || $event instanceof UserRemovedEvent) {
-            if (filter_var($this->config->getAppValue('auto_groups', 'modification_hook', 'true'), FILTER_VALIDATE_BOOLEAN)) {
+			if ($this->appConfig->getAppValueBool('modification_hook', true)) {
                 $this->manager->addAndRemoveAutoGroups($event);
             }
         } elseif ($event instanceof PostLoginEvent || $event instanceof UserLoggedInEvent) {
-            if (filter_var($this->config->getAppValue('auto_groups', 'login_hook', 'false'), FILTER_VALIDATE_BOOLEAN)) {
+			if ($this->appConfig->getAppValueBool('login_hook')) {
                 $this->manager->addAndRemoveAutoGroups($event);
             }
         } elseif ($event instanceof BeforeGroupDeletedEvent) {
