@@ -2,9 +2,9 @@
 
 ## Overview
 
-A Nextcloud app (v1.7.0, AGPL-3.0) that automatically adds users to configured groups ("Auto Groups"), with optional exemptions for users in "Override Groups". A modernized fork of the abandoned [defaultgroup](https://github.com/bodangren/defaultgroup) app.
+A Nextcloud app (v1.7.2, AGPL-3.0) that automatically adds users to configured groups ("Auto Groups"), with optional exemptions for users in "Override Groups". A modernized fork of the abandoned [defaultgroup](https://github.com/bodangren/defaultgroup) app.
 
-- **Nextcloud compatibility**: 31–34
+- **Nextcloud compatibility**: 32–35
 - **PHP**: 8.2, 8.3
 - **App ID**: `auto_groups` (note: older config used `AutoGroups` — migration logic exists)
 
