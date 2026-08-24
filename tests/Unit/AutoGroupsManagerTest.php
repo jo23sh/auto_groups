@@ -63,12 +63,25 @@ class AutoGroupsManagerTest extends TestCase
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->il10n = $this->createMock(IL10N::class);
 
-		$this->userManager->method('userExists')->willReturn(true);
-
         $this->testUser = $this->createMock(IUser::class);
+        $this->testUser->expects($this->any())
+            ->method('getUID')
+            ->willReturn('testuser');
         $this->testUser->expects($this->any())
             ->method('getDisplayName')
             ->willReturn('Test User');
+    }
+
+    /**
+     * The event handler guards against users that are already gone from the
+     * backend, so every hook invocation looks the user up by their uid.
+     */
+    private function expectUserExistsCheck(bool $exists): void
+    {
+        $this->userManager->expects($this->once())
+            ->method('userExists')
+            ->with('testuser')
+            ->willReturn($exists);
     }
 
     private function createAutoGroupsManager($auto_groups = [], $override_groups = []): AutoGroupsManager
@@ -118,6 +131,8 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getUser')
             ->willReturn($this->testUser);
 
+        $this->expectUserExistsCheck(true);
+
         // User belongs to no groups, so they should be added to the auto group
         $this->groupManager->expects($this->once())
             ->method('getUserGroupIds')
@@ -144,6 +159,8 @@ class AutoGroupsManagerTest extends TestCase
         $event->expects($this->once())
             ->method('getUser')
             ->willReturn($this->testUser);
+
+        $this->expectUserExistsCheck(true);
 
         // User is already in the auto group, so addUser should never be called
         $this->groupManager->expects($this->once())
@@ -172,6 +189,8 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getUser')
             ->willReturn($this->testUser);
 
+        $this->expectUserExistsCheck(true);
+
         // User belongs to an override group, so they should be removed from all auto groups
         $this->groupManager->expects($this->once())
             ->method('getUserGroupIds')
@@ -199,6 +218,8 @@ class AutoGroupsManagerTest extends TestCase
             ->method('getUser')
             ->willReturn($this->testUser);
 
+        $this->expectUserExistsCheck(true);
+
         // User is in an override group but not in any auto group, so removeUser should never be called
         $this->groupManager->expects($this->once())
             ->method('getUserGroupIds')
@@ -216,6 +237,27 @@ class AutoGroupsManagerTest extends TestCase
             ->willReturnOnConsecutiveCalls([$groupMock], [$groupMock]);
 
         $agm = $this->createAutoGroupsManager(['autogroup1', 'autogroup2'], ['overridegroup1', 'overridegroup2']);
+        $agm->addAndRemoveAutoGroups($event);
+    }
+
+    public function testDeletedUserIsIgnored()
+    {
+        $event = $this->createMock(UserCreatedEvent::class);
+        $event->expects($this->once())
+            ->method('getUser')
+            ->willReturn($this->testUser);
+
+        // The user is already gone from the backend, which is the situation
+        // OC\User\BackgroundJobs\CleanupDeletedUsers creates when it removes a
+        // partially deleted user from their groups. Re-adding them to the auto
+        // groups at that point would resurrect the user, so the hook has to bail
+        // out before touching any group.
+        $this->expectUserExistsCheck(false);
+
+        $this->groupManager->expects($this->never())->method('getUserGroupIds');
+        $this->groupManager->expects($this->never())->method('search');
+
+        $agm = $this->createAutoGroupsManager(['autogroup1', 'autogroup2'], ['overridegroup1']);
         $agm->addAndRemoveAutoGroups($event);
     }
 
