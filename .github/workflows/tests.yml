@@ -41,21 +41,18 @@ jobs:
 
     steps:
       - name: Checkout Nextcloud Server
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           repository: nextcloud/server
           ref: ${{ matrix.server-versions }}
           fetch-depth: 2
-
-      - name: Checkout submodules
-        shell: bash
-        run: |
-          auth_header="$(git config --local --get http.https://github.com/.extraheader)"
-          git submodule sync --recursive
-          git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1
+          # Server keeps 3rdparty as a submodule. This replaces a hand-rolled
+          # `git submodule update` that reused checkout's persisted credentials
+          # via http.<url>.extraheader - a config key checkout no longer writes.
+          submodules: recursive
 
       - name: Checkout app
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           path: apps/${{ env.APP_NAME }}
           fetch-depth: 2
@@ -69,7 +66,7 @@ jobs:
           key: ${{ env.CACHE_KEY }}
 
       - name: Cache extensions
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ${{ steps.cache-env.outputs.dir }}
           key: ${{ steps.cache-env.outputs.key }}

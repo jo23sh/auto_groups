@@ -12,9 +12,12 @@ jobs:
   publish:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write # to attach the archive to the release
+
     steps:
       - name: Checkout app
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7
         with:
           path: ${{ env.APP_NAME }}
           
@@ -25,9 +28,6 @@ jobs:
       - name: Define Archive Name
         run: echo "ARCHIVE_NAME=${{ env.APP_NAME }}-${{ steps.set-tag-name.outputs.TAG_NAME }}.tar.gz" >> $GITHUB_ENV
         
-      - name: Get Upload URL
-        run: echo "UPLOAD_URL=$(curl https://api.github.com/repos/${{ github.repository }}/releases | jq -r '.[] | select(.tag_name == "${{ steps.set-tag-name.outputs.TAG_NAME }}") | .upload_url')" >> $GITHUB_ENV
-          
       - name: Check version info in info.xml
         run: grep "<version>$(echo ${{ steps.set-tag-name.outputs.TAG_NAME }} | cut -c2-)</version>" ${{ env.APP_NAME }}/appinfo/info.xml
 
@@ -40,22 +40,23 @@ jobs:
       - name: Create Archive
         run: tar -zcvf ${{ env.ARCHIVE_NAME }} ${{ env.APP_NAME }}/
 
+      # actions/upload-release-asset is archived and has no successor, so the
+      # upload goes through the gh CLI preinstalled on the runner. The asset's
+      # download URL is derivable from the tag and file name, which is what the
+      # action used to hand back as browser_download_url.
       - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-            upload_url: ${{ env.UPLOAD_URL }}
-            asset_path: ./${{ env.ARCHIVE_NAME }}
-            asset_name: ${{ env.ARCHIVE_NAME }}
-            asset_content_type: application/tar+gzip
-    
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ steps.set-tag-name.outputs.TAG_NAME }}" \
+            "${{ env.ARCHIVE_NAME }}" --repo "${{ github.repository }}"
+          echo "DOWNLOAD_URL=https://github.com/${{ github.repository }}/releases/download/${{ steps.set-tag-name.outputs.TAG_NAME }}/${{ env.ARCHIVE_NAME }}" >> $GITHUB_ENV
+
       - name: Create Archive Signature
         run: echo "ARCHIVE_SIGNATURE=$(echo "${{ secrets.AUTO_GROUPS_SIGNING_KEY }}" | openssl dgst -sha512 -sign /dev/stdin  ${{ env.ARCHIVE_NAME }}  | openssl base64 -A )" >> $GITHUB_ENV
 
       - name: Create Publish Payload
-        run: "echo '{ \"download\": \"${{ steps.upload-release-asset.outputs.browser_download_url }}\", \"signature\": \"${{ env.ARCHIVE_SIGNATURE }}\"}' > publish.json"
+        run: "echo '{ \"download\": \"${{ env.DOWNLOAD_URL }}\", \"signature\": \"${{ env.ARCHIVE_SIGNATURE }}\"}' > publish.json"
 
       - name: Submit to Nextcloud App Store
         run: "curl -f -X POST https://apps.nextcloud.com/api/v1/apps/releases -H 'Authorization: Token ${{ secrets.APP_STORE_API_TOKEN }}' -H 'Content-Type: application/json' -d @publish.json"

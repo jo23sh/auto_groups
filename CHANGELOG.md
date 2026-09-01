@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Compatibility up to NC36
+- Test against PHP 8.4, and against NC35
+- Update the GitHub Actions workflows off deprecated actions and Node.js 20
 
 ### Fixed
 
