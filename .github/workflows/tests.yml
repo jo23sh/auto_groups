@@ -26,6 +26,10 @@ jobs:
         databases: ["sqlite"]
         server-versions: ["stable32", "stable33", "stable34", "stable35"]
         experimental: [false]
+        exclude:
+          # NC35 requires PHP 8.3, so this combination cannot be installed.
+          - php-versions: "8.2"
+            server-versions: "stable35"
         include:
           - php-versions: "8.4"
             databases: sqlite
