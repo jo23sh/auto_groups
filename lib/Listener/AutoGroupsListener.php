@@ -28,6 +28,7 @@ namespace OCA\AutoGroups\Listener;
 use OCP\AppFramework\Services\IAppConfig;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
+use OCP\User\Events\BeforeUserDeletedEvent;
 use OCP\User\Events\UserCreatedEvent;
 use OCP\User\Events\UserFirstTimeLoggedInEvent;
 use OCP\User\Events\PostLoginEvent;
@@ -38,7 +39,7 @@ use OCP\Group\Events\BeforeGroupDeletedEvent;
 
 use OCA\AutoGroups\AutoGroupsManager;
 
-/** @template-implements IEventListener<UserCreatedEvent|UserFirstTimeLoggedInEvent|UserAddedEvent|UserRemovedEvent|PostLoginEvent|UserLoggedInEvent|BeforeGroupDeletedEvent> */
+/** @template-implements IEventListener<BeforeUserDeletedEvent|UserCreatedEvent|UserFirstTimeLoggedInEvent|UserAddedEvent|UserRemovedEvent|PostLoginEvent|UserLoggedInEvent|BeforeGroupDeletedEvent> */
 class AutoGroupsListener implements IEventListener
 {
     public function __construct(
@@ -49,7 +50,13 @@ class AutoGroupsListener implements IEventListener
 	#[\Override]
     public function handle(Event $event): void
     {
-        if ($event instanceof UserCreatedEvent || $event instanceof UserFirstTimeLoggedInEvent) {
+        if ($event instanceof BeforeUserDeletedEvent) {
+            // Fired before the deletion removes the user from their groups. Without
+            // this the removals fire UserRemovedEvent, the modification hook puts
+            // the user straight back into the auto groups, and the row survives the
+            // user record — see AutoGroupsManager::addAndRemoveAutoGroups().
+            $this->manager->markUserAsDeleting($event->getUser()->getUID());
+        } elseif ($event instanceof UserCreatedEvent || $event instanceof UserFirstTimeLoggedInEvent) {
             if ($this->appConfig->getAppValueBool('creation_hook', true)) {
                 $this->manager->addAndRemoveAutoGroups($event);
             }

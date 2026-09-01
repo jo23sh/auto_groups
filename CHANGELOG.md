@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Compatibility up to NC36
 
+### Fixed
+
+- Don't re-add a user to the auto groups while they are being deleted, which left orphaned group memberships behind. (#94)
+
 ## 1.7.2 - 2026-08-04
 
 ### Changed

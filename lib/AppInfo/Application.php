@@ -28,6 +28,7 @@ use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\User\Events\BeforeUserDeletedEvent;
 use OCP\User\Events\UserCreatedEvent;
 use OCP\User\Events\UserFirstTimeLoggedInEvent;
 use OCP\User\Events\PostLoginEvent;
@@ -48,6 +49,7 @@ class Application extends App implements IBootstrap
 
 	public function register(IRegistrationContext $context): void
 	{
+		$context->registerEventListener(BeforeUserDeletedEvent::class, AutoGroupsListener::class);
 		$context->registerEventListener(UserCreatedEvent::class, AutoGroupsListener::class);
 		$context->registerEventListener(UserFirstTimeLoggedInEvent::class, AutoGroupsListener::class);
 		$context->registerEventListener(UserAddedEvent::class, AutoGroupsListener::class);
