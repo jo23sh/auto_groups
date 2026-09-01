@@ -25,6 +25,7 @@
 namespace OCA\AutoGroups\Tests\Unit;
 
 use OCP\Group\Events\BeforeGroupDeletedEvent;
+use OCP\Group\Events\UserRemovedEvent;
 use OCP\IUserManager;
 use OCP\User\Events\UserCreatedEvent;
 
@@ -258,6 +259,52 @@ class AutoGroupsManagerTest extends TestCase
         $this->groupManager->expects($this->never())->method('search');
 
         $agm = $this->createAutoGroupsManager(['autogroup1', 'autogroup2'], ['overridegroup1']);
+        $agm->addAndRemoveAutoGroups($event);
+    }
+
+    public function testUserBeingDeletedIsIgnoredWhileStillPresent()
+    {
+        $event = $this->createMock(UserRemovedEvent::class);
+        $event->expects($this->once())
+            ->method('getUser')
+            ->willReturn($this->testUser);
+
+        // The case testDeletedUserIsIgnored() cannot cover. Deleting a user removes
+        // them from every group *before* deleting the user record, so each removal
+        // fires UserRemovedEvent while userExists() is still true — re-adding them
+        // here leaves a group membership behind for a user that then ceases to
+        // exist. Knowing the deletion is in flight is the only thing that
+        // distinguishes this from an admin removing someone by hand, which the
+        // modification hook is supposed to undo.
+        $this->userManager->expects($this->never())->method('userExists');
+        $this->groupManager->expects($this->never())->method('getUserGroupIds');
+        $this->groupManager->expects($this->never())->method('search');
+
+        $agm = $this->createAutoGroupsManager(['autogroup1', 'autogroup2'], ['overridegroup1']);
+        $agm->markUserAsDeleting('testuser');
+        $agm->addAndRemoveAutoGroups($event);
+    }
+
+    public function testOtherUsersAreUnaffectedByAPendingDeletion()
+    {
+        $event = $this->createMock(UserRemovedEvent::class);
+        $event->expects($this->once())
+            ->method('getUser')
+            ->willReturn($this->testUser);
+
+        // The flag is per uid, not a global "a deletion is happening" switch: one
+        // user being deleted must not stop the hooks working for everyone else in
+        // the same request.
+        $this->expectUserExistsCheck(true);
+        $this->groupManager->expects($this->once())
+            ->method('getUserGroupIds')
+            ->willReturn(['autogroup1']);
+        $this->groupManager->expects($this->once())
+            ->method('search')
+            ->willReturn([]);
+
+        $agm = $this->createAutoGroupsManager(['autogroup1'], ['overridegroup1']);
+        $agm->markUserAsDeleting('someone.else');
         $agm->addAndRemoveAutoGroups($event);
     }
 

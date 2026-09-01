@@ -36,6 +36,23 @@ use Psr\Log\LoggerInterface;
 
 class AutoGroupsManager
 {
+	/**
+	 * UIDs whose deletion is in flight, as `uid => true`.
+	 *
+	 * Never cleared, and deliberately so. It cannot grow over time: PHP rebuilds
+	 * the container every request, so this dies with the request that filled it,
+	 * and a request normally deletes exactly one user. Only a looped
+	 * `occ user:delete` puts more than one entry in it, at one short string each.
+	 *
+	 * Clearing it on UserDeletedEvent would be the obvious lifecycle, and is the
+	 * riskier option: it is only correct if every group removal fires before that
+	 * event, and if one fires after, the hook this guard exists to stop runs again.
+	 * A stale entry costs nothing — auto-group work is skipped for a user whose
+	 * deletion was abandoned, until the request ends moments later.
+	 *
+	 * @var array<string, true>
+	 */
+	private array $deletingUsers = [];
 
     /**
      * AutoGroupsManager constructor.
@@ -88,6 +105,15 @@ class AutoGroupsManager
     }
 
     /**
+     * Remember that this user is being deleted, so the group removals the deletion
+     * is about to perform are not undone by the auto-group hooks.
+     */
+    public function markUserAsDeleting(string $uid): void
+    {
+        $this->deletingUsers[$uid] = true;
+    }
+
+    /**
      * The event handler to check group assignment for a user
      */
     public function addAndRemoveAutoGroups(Event $event): void
@@ -98,6 +124,18 @@ class AutoGroupsManager
 
         // Get user information
         $user = $event->getUser();
+
+		if (isset($this->deletingUsers[$user->getUID()])) {
+			// Deleting a user removes them from every group first and deletes the
+			// user record afterwards, so each removal fires UserRemovedEvent while
+			// the user still exists — the check below cannot catch it. Re-adding
+			// them here puts a row back into oc_group_user that the rest of the
+			// deletion has already passed, leaving an orphan: a group membership
+			// for a user that no longer exists. Nextcloud then logs "Found one
+			// enabled account that is removed from its backend" for it on every
+			// user listing, forever.
+			return;
+		}
 
 		if (!$this->userManager->userExists($user->getUID())) {
 			// Avoid doing any group manipulation when running inside
