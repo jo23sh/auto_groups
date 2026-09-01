@@ -33,7 +33,7 @@ Note that this app prevents group deletions for groups referenced as Auto Groups
     <repository type="git">https://github.com/stjosh/auto_groups.git</repository>
     <screenshot>https://raw.githubusercontent.com/stjosh/auto_groups/master/screenshots/settings.png</screenshot>
     <dependencies>
-        <nextcloud min-version="32" max-version="35"/>
+        <nextcloud min-version="32" max-version="36"/>
     </dependencies>
     <settings>
         <admin>OCA\AutoGroups\Settings\Admin</admin>
