@@ -83,38 +83,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Compatibility with Nextcloud 28 [#71](https://github.com/stjosh/auto_groups/issues/72)
+- Compatibility with Nextcloud 28 [#71](https://github.com/jo23sh/auto_groups/issues/72)
 
 ## 1.5.2 - 2023-06-24
 
 ### Changed
 
-- Compatibility with Nextcloud 27 [#67](https://github.com/stjosh/auto_groups/issues/67)
+- Compatibility with Nextcloud 27 [#67](https://github.com/jo23sh/auto_groups/issues/67)
 
 ## 1.5.1 - 2023-01-16
 
 ### Fixed
 
-- Fix admin settings display issue in NC25 and Firefox [#65](https://github.com/stjosh/auto_groups/issues/65)
+- Fix admin settings display issue in NC25 and Firefox [#65](https://github.com/jo23sh/auto_groups/issues/65)
 
 ## 1.5.0 - 2022-12-12
 
 ### Changed
 
-- Fixed deprecation message [#61](https://github.com/stjosh/auto_groups/issues/61)
-- More precise description for the "Groups Modification"-Setting [#60](https://github.com/stjosh/auto_groups/issues/60)
+- Fixed deprecation message [#61](https://github.com/jo23sh/auto_groups/issues/61)
+- More precise description for the "Groups Modification"-Setting [#60](https://github.com/jo23sh/auto_groups/issues/60)
 
 ## 1.4.1 - 2021-11-18
 
 ### Changed
 
-- Update path in admin settings [#62](https://github.com/stjosh/auto_groups/pull/62)
+- Update path in admin settings [#62](https://github.com/jo23sh/auto_groups/pull/62)
 
 ## 1.4.0 - 2021-11-18
 
 ### Changed
 
-- Refactor hooks to be non-exclusive and separate the "creation" from the "modification" hook [#57](https://github.com/stjosh/auto_groups/issues/57)
+- Refactor hooks to be non-exclusive and separate the "creation" from the "modification" hook [#57](https://github.com/jo23sh/auto_groups/issues/57)
 
 ## 1.3.1 - 2021-04-16
 
@@ -138,7 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Move to UserLoggedInEvent for login checks, enabling compatibility with SAML login [#42](https://github.com/stjosh/auto_groups/issues/42)
+- Move to UserLoggedInEvent for login checks, enabling compatibility with SAML login [#42](https://github.com/jo23sh/auto_groups/issues/42)
 
 ## 1.1.1 - 2020-05-08
 
@@ -150,9 +150,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Prevent Group deletion [#28](https://github.com/stjosh/auto_groups/issues/28)
-- Automate release publishing [#9](https://github.com/stjosh/auto_groups/issues/9)
-- Added Changelog [#27](https://github.com/stjosh/auto_groups/issues/27)
+- Prevent Group deletion [#28](https://github.com/jo23sh/auto_groups/issues/28)
+- Automate release publishing [#9](https://github.com/jo23sh/auto_groups/issues/9)
+- Added Changelog [#27](https://github.com/jo23sh/auto_groups/issues/27)
 
 ### Changed
 
@@ -162,7 +162,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Broken release 1.0.1 which could not be installed [#26](https://github.com/stjosh/auto_groups/issues/26)
+- Broken release 1.0.1 which could not be installed [#26](https://github.com/jo23sh/auto_groups/issues/26)
 
 ## 1.0.1 - 2020-04-23
 

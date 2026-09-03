@@ -28,10 +28,10 @@ Note that this app prevents group deletions for groups referenced as Auto Groups
     <author mail="josh@o23.ch" >Josua Hunziker</author>
     <namespace>AutoGroups</namespace>
     <category>tools</category>
-    <website>https://github.com/stjosh/auto_groups</website>
-    <bugs>https://github.com/stjosh/auto_groups/issues</bugs>
-    <repository type="git">https://github.com/stjosh/auto_groups.git</repository>
-    <screenshot>https://raw.githubusercontent.com/stjosh/auto_groups/master/screenshots/settings.png</screenshot>
+    <website>https://github.com/jo23sh/auto_groups</website>
+    <bugs>https://github.com/jo23sh/auto_groups/issues</bugs>
+    <repository type="git">https://github.com/jo23sh/auto_groups.git</repository>
+    <screenshot>https://raw.githubusercontent.com/jo23sh/auto_groups/master/screenshots/settings.png</screenshot>
     <dependencies>
         <nextcloud min-version="32" max-version="36"/>
     </dependencies>
