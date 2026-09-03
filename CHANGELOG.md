@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.8.0 - 2026-09-03
+
+### Fixed
+
+- The admin settings were dead on Nextcloud 34, which no longer ships jQuery or
+  `OC.Settings.setupGroupsSelect` — the form threw `$ is not defined` and never
+  initialised its group pickers.
+
+### Changed
+
+- The admin form is now a declarative settings form rendered by Nextcloud itself, so
+  the app ships no template, no stylesheet and no JavaScript. The stored config format
+  is unchanged, so no migration is needed.
+- The group pickers list group IDs. Groups whose display name differs from their ID are
+  shown by ID, which the previous picker did not do.
+- New translatable string "Override Groups" (the old label carried a trailing colon).
+
 ## 1.7.3 - 2026-09-01
 
 ### Changed

@@ -2,7 +2,7 @@
 
 ## Overview
 
-A Nextcloud app (v1.7.3, AGPL-3.0) that automatically adds users to configured groups ("Auto Groups"), with optional exemptions for users in "Override Groups". A modernized fork of the abandoned [defaultgroup](https://github.com/bodangren/defaultgroup) app.
+A Nextcloud app (v1.8.0, AGPL-3.0) that automatically adds users to configured groups ("Auto Groups"), with optional exemptions for users in "Override Groups". A modernized fork of the abandoned [defaultgroup](https://github.com/bodangren/defaultgroup) app.
 
 - **Nextcloud compatibility**: 32–36
 - **PHP**: 8.2, 8.3, 8.4 (NC35 requires 8.3, so the CI matrix excludes 8.2 there)
@@ -14,9 +14,13 @@ Single-class app with minimal footprint:
 
 - `lib/AutoGroupsManager.php` — core logic; registers event listeners and handles group assignment/deletion
 - `lib/AppInfo/Application.php` — bootstraps the app via Nextcloud's DI container
-- `lib/Settings/Admin.php` — admin settings page
+- `lib/Settings/Admin.php` — admin settings, as a declarative settings form
+  (`IDeclarativeSettingsFormWithHandlers`): Nextcloud renders the form from `getSchema()`
+  and reads/writes each field through `getValue()`/`setValue()`, which keep the config
+  format below. Registered in `Application::register()`, **not** in `info.xml`. The app
+  therefore ships no template, stylesheet or JavaScript — do not add any back: NC34
+  dropped jQuery and `OC.Settings.setupGroupsSelect`, which is what killed the old form.
 - `appinfo/routes.php` — routes
-- `templates/admin.php` + `css/admin.css` + `js/admin.js` — admin UI
 
 ## Key Behavior
 

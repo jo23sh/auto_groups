@@ -24,106 +24,186 @@
 
 namespace OCA\AutoGroups\Tests\Unit;
 
-use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IConfig;
+use OCP\IGroup;
+use OCP\IGroupManager;
+use OCP\IL10N;
+use OCP\IUser;
+use OCP\Settings\DeclarativeSettingsTypes;
 
 use OCA\AutoGroups\Settings\Admin;
 
 use Test\TestCase;
 
-// Mock Functions
-function script($script, $scope)
-{
-    print ('<SCRIPT>' . $script . '</SCRIPT><SCOPE>' . $scope . '</SCOPE>');
-}
-
-function style($style, $scope)
-{
-    print ('<STYLE>' . $script . '</STYLE><SCOPE>' . $scope . '</SCOPE>');
-}
-
-function p($string)
-{
-    print ($string);
-}
-
-class Language
-{
-    public function t($string)
-    {
-        return $string;
-    }
-}
-
-// The actual test class
 class AdminSettingsTest extends TestCase
 {
     private $config;
+    private $groupManager;
+    private $user;
     private $adminSettings;
 
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->config = $this->createMock(IConfig::class);
+        $this->groupManager = $this->createMock(IGroupManager::class);
+        $this->user = $this->createMock(IUser::class);
 
-        $this->adminSettings = new Admin($this->config);
+        $l = $this->createMock(IL10N::class);
+        $l->method('t')->willReturnArgument(0);
+
+        $this->groupManager->method('search')->with('')->willReturn([
+            $this->mockGroup('admin', 'Administrators'),
+            $this->mockGroup('staff', 'Staff'),
+        ]);
+
+        $this->adminSettings = new Admin($this->config, $this->groupManager, $l);
     }
 
-    public function testSection()
+    private function mockGroup(string $gid, string $displayName): IGroup
     {
-        // Settings must appear in the 'additional' admin section
-        $this->assertEquals('additional', $this->adminSettings->getSection());
+        $group = $this->createMock(IGroup::class);
+        $group->method('getGID')->willReturn($gid);
+        $group->method('getDisplayName')->willReturn($displayName);
+
+        return $group;
     }
 
-    public function testPriority()
+    public function testSchema()
     {
-        // Priority 100 places the form towards the bottom of the section
-        $this->assertEquals(100, $this->adminSettings->getPriority());
+        // The form must land in the 'additional' admin section, below the core forms,
+        // and store its values through this class rather than through Nextcloud
+        $schema = $this->adminSettings->getSchema();
+
+        $this->assertEquals('auto_groups', $schema['id']);
+        $this->assertEquals(100, $schema['priority']);
+        $this->assertEquals(DeclarativeSettingsTypes::SECTION_TYPE_ADMIN, $schema['section_type']);
+        $this->assertEquals('additional', $schema['section_id']);
+        $this->assertEquals(DeclarativeSettingsTypes::STORAGE_TYPE_EXTERNAL, $schema['storage_type']);
     }
 
-    public function testForm()
+    public function testSchemaFields()
     {
-        // getForm() must read all five config values and pass them to the template as parameters
-        $this->config->expects($this->exactly(5))
+        // Every field id doubles as the config key it is stored under
+        $fields = [];
+        foreach ($this->adminSettings->getSchema()['fields'] as $field) {
+            $fields[$field['id']] = $field['type'];
+        }
+
+        $this->assertEquals([
+            'auto_groups' => DeclarativeSettingsTypes::MULTI_SELECT,
+            'override_groups' => DeclarativeSettingsTypes::MULTI_SELECT,
+            'creation_hook' => DeclarativeSettingsTypes::CHECKBOX,
+            'modification_hook' => DeclarativeSettingsTypes::CHECKBOX,
+            'login_hook' => DeclarativeSettingsTypes::CHECKBOX,
+        ], $fields);
+    }
+
+    public function testAdminGroupIsNotOfferedAsAutoGroup()
+    {
+        $fields = [];
+        foreach ($this->adminSettings->getSchema()['fields'] as $field) {
+            $fields[$field['id']] = $field;
+        }
+
+        // Adding every user to the admin group would make everyone an administrator
+        $this->assertSame(['staff'], $fields['auto_groups']['options']);
+
+        // Override Groups are about exempting users, so the admin group is fine there
+        $this->assertSame(['admin', 'staff'], $fields['override_groups']['options']);
+    }
+
+    public function testGetValueReadsGroupsAsJsonString()
+    {
+        // A multi-select field is read as a JSON string: the frontend JSON.parse()s it
+        $this->config->expects($this->once())
             ->method('getAppValue')
-            ->withConsecutive(
-                ['auto_groups', 'auto_groups', '[]'],
-                ['auto_groups', 'override_groups', '[]'],
-                ['auto_groups', 'creation_hook', 'true'],
-                ['auto_groups', 'modification_hook', 'true'],
-                ['auto_groups', 'login_hook', 'false']
-            )
-            ->willReturnOnConsecutiveCalls(json_encode(['auto1', 'auto2']), json_encode(['override1', 'override2']), true, true);
+            ->with('auto_groups', 'auto_groups', '[]')
+            ->willReturn(json_encode(['auto1', 'auto2']));
 
-        $response = $this->adminSettings->getForm();
-
-        $this->assertInstanceOf(TemplateResponse::class, $response);
-        $this->assertEquals('admin', $response->getTemplateName());
-
-        $params = $response->getParams();
-        $this->assertIsArray($params);
-        $this->assertEquals(true, $params['creation_hook']);
-        $this->assertEquals(true, $params['modification_hook']);
-        $this->assertEquals(false, $params['login_hook']);
-        $this->assertEquals('auto1|auto2', $params['auto_groups']);
-        $this->assertEquals('override1|override2', $params['override_groups']);
+        $this->assertSame('["auto1","auto2"]', $this->adminSettings->getValue('auto_groups', $this->user));
     }
 
-    /*public function testTemplate() {
-        // We're basically mocking https://github.com/nextcloud/server/blob/master/lib/private/Template/Base.php here
+    public function testGetValueSurvivesUnparsableGroups()
+    {
+        // Anything the frontend cannot parse breaks the whole settings page, so a
+        // damaged config value must still come back as valid JSON
+        $this->config->method('getAppValue')->willReturn('not json');
 
-        $l = new Language();
-        $_ = array('auto_groups' => 'autogroup1|autogroup2', 'override_groups' => 'override1|override2', 'login_hook' => 'true');
+        $this->assertSame('[]', $this->adminSettings->getValue('override_groups', $this->user));
+    }
 
-       ob_start();
-       include 'templates/admin.php';
-       $html = ob_get_contents();
-       @ob_end_clean();
-        
-        $this->assertIsString($html);
-        $this->assertStringContainsString('<p class="auto_groups_settings_section">', $html);
-        $this->assertStringContainsString('<input name="auto_groups" id="auto_groups" value="autogroup1|autogroup2"', $html);
-        $this->assertStringContainsString('<input name="auto_groups_override" id="auto_groups_override" value="override1|override2"', $html);
-        $this->assertStringContainsString('<input name="auto_groups_login_hook" id="auto_groups_login_hook" type="checkbox" class="checkbox" checked', $html);
-    }*/
+    /**
+     * @dataProvider hookDefaultProvider
+     */
+    public function testGetValueUsesHookDefaults(string $fieldId, string $default, bool $expected)
+    {
+        // The stored value is the 'true'/'false' string the rest of the app writes
+        $this->config->expects($this->once())
+            ->method('getAppValue')
+            ->with('auto_groups', $fieldId, $default)
+            ->willReturn($default);
+
+        $this->assertSame($expected, $this->adminSettings->getValue($fieldId, $this->user));
+    }
+
+    public function hookDefaultProvider(): array
+    {
+        return [
+            'creation hook defaults to on' => ['creation_hook', 'true', true],
+            'modification hook defaults to on' => ['modification_hook', 'true', true],
+            'login hook defaults to off' => ['login_hook', 'false', false],
+        ];
+    }
+
+    /**
+     * The multi-select posts a JSON string; an event-based handler would pass an array
+     *
+     * @dataProvider groupInputProvider
+     */
+    public function testSetValueStoresGroupsAsJsonList($sent)
+    {
+        $this->config->expects($this->once())
+            ->method('setAppValue')
+            ->with('auto_groups', 'override_groups', '["override1","override2"]');
+
+        $this->adminSettings->setValue('override_groups', $sent, $this->user);
+    }
+
+    public function groupInputProvider(): array
+    {
+        return [
+            'JSON string, as the form posts it' => ['["override1","override2"]'],
+            'plain array' => [['override1', 'override2']],
+        ];
+    }
+
+    public function testSetValueSurvivesUnparsableGroups()
+    {
+        $this->config->expects($this->once())
+            ->method('setAppValue')
+            ->with('auto_groups', 'auto_groups', '[]');
+
+        $this->adminSettings->setValue('auto_groups', 'not json', $this->user);
+    }
+
+    public function testSetValueKeepsGroupIdsOnly()
+    {
+        // Guards against a select handing back option objects instead of plain IDs
+        $this->config->expects($this->once())
+            ->method('setAppValue')
+            ->with('auto_groups', 'auto_groups', '["staff"]');
+
+        $this->adminSettings->setValue('auto_groups', [['label' => 'Staff', 'value' => 'staff']], $this->user);
+    }
+
+    public function testSetValueStoresHooksAsStrings()
+    {
+        $this->config->expects($this->once())
+            ->method('setAppValue')
+            ->with('auto_groups', 'login_hook', 'true');
+
+        $this->adminSettings->setValue('login_hook', true, $this->user);
+    }
 }

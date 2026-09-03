@@ -24,8 +24,8 @@
 
 namespace OCA\AutoGroups\Tests\Integration;
 
-use OCP\Settings\IManager;
-use OCP\AppFramework\Http\TemplateResponse;
+use OCP\IConfig;
+use OCP\IUser;
 
 use Test\TestCase;
 use OCA\AutoGroups\AppInfo\Application;
@@ -39,8 +39,9 @@ class AdminSettingsTest extends TestCase
 
     private $app;
     private $container;
-    private $settingsManager;
-
+    private $config;
+    private $adminSettings;
+    private $user;
 
     protected function setUp(): void
     {
@@ -49,31 +50,81 @@ class AdminSettingsTest extends TestCase
         $this->app = new Application();
         $this->container = $this->app->getContainer();
 
-        $this->settingsManager = $this->container->query(IManager::class);
+        $this->config = $this->container->query(IConfig::class);
+        $this->adminSettings = $this->container->query(Admin::class);
+        $this->user = $this->createMock(IUser::class);
     }
 
-    public function testAppSettingsExist()
+    public function testSchemaIsUsable()
     {
-        $settings = $this->settingsManager->getAdminSettings('additional');
+        // The container must be able to build the form with its real dependencies,
+        // and every field must carry what Nextcloud requires to render it
+        $schema = $this->adminSettings->getSchema();
 
-        // The app must register its Admin settings class at priority 100 in the 'additional' section
-        $this->assertArrayHasKey(100, $settings);
-        $this->assertIsArray($settings[100]);
-        $adminSettings = $settings[100][0];
-        $this->assertInstanceOf(Admin::class, $adminSettings);
+        $this->assertEquals('additional', $schema['section_id']);
+        $this->assertNotEmpty($schema['title']);
+        $this->assertCount(5, $schema['fields']);
+
+        foreach ($schema['fields'] as $field) {
+            $this->assertNotEmpty($field['id']);
+            $this->assertNotEmpty($field['title']);
+            $this->assertNotEmpty($field['type']);
+            $this->assertArrayHasKey('default', $field);
+        }
     }
 
-    public function testFormRender()
+    public function testGroupOptionsComeFromTheGroupManager()
     {
-        $appSettings = $this->settingsManager->getAdminSettings('additional')[100][0];
+        $fields = [];
+        foreach ($this->adminSettings->getSchema()['fields'] as $field) {
+            $fields[$field['id']] = $field;
+        }
 
-        // getForm() must return a TemplateResponse (the actual template rendering is not tested here)
-        $templateResponse = $appSettings->getForm();
-        $this->assertInstanceOf(TemplateResponse::class, $templateResponse);
+        // Both group pickers must offer plain group IDs: the select posts back
+        // whatever it was given, so an option object would be stored as the group
+        foreach (['auto_groups', 'override_groups'] as $fieldId) {
+            $this->assertIsArray($fields[$fieldId]['options']);
 
-        /*$html = $templateResponse->render();
-        $this->assertIsString($html);
-        $this->assertStringContainsString('<div id="auto_groups_options" class="section">', $html);
-        $this->assertStringContainsString('<p class="auto_groups_settings_section">', $html);*/
+            foreach ($fields[$fieldId]['options'] as $option) {
+                $this->assertIsString($option);
+            }
+        }
+    }
+
+    /**
+     * The form is written with the value the frontend sends (an array for the group
+     * pickers, a boolean for the hooks) and read back in the shape it expects (a JSON
+     * string, a boolean) — while the config keeps the format AutoGroupsManager reads.
+     *
+     * @dataProvider roundTripProvider
+     */
+    public function testValuesRoundTripThroughTheConfig(string $fieldId, $sent, string $stored, $read)
+    {
+        $previous = $this->config->getAppValue('auto_groups', $fieldId, null);
+
+        try {
+            $this->adminSettings->setValue($fieldId, $sent, $this->user);
+
+            $this->assertSame($stored, $this->config->getAppValue('auto_groups', $fieldId));
+            $this->assertSame($read, $this->adminSettings->getValue($fieldId, $this->user));
+        } finally {
+            if ($previous === null) {
+                $this->config->deleteAppValue('auto_groups', $fieldId);
+            } else {
+                $this->config->setAppValue('auto_groups', $fieldId, $previous);
+            }
+        }
+    }
+
+    public function roundTripProvider(): array
+    {
+        return [
+            'groups as the form posts them' => ['auto_groups', '["group1","group2"]', '["group1","group2"]', '["group1","group2"]'],
+            'groups as an array' => ['auto_groups', ['group1', 'group2'], '["group1","group2"]', '["group1","group2"]'],
+            'override groups' => ['override_groups', ['group3'], '["group3"]', '["group3"]'],
+            'no groups' => ['auto_groups', [], '[]', '[]'],
+            'hook enabled' => ['login_hook', true, 'true', true],
+            'hook disabled' => ['creation_hook', false, 'false', false],
+        ];
     }
 }

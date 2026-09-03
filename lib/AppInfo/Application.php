@@ -39,6 +39,7 @@ use OCP\Group\Events\BeforeGroupDeletedEvent;
 
 use OCA\AutoGroups\AutoGroupsManager;
 use OCA\AutoGroups\Listener\AutoGroupsListener;
+use OCA\AutoGroups\Settings\Admin;
 
 class Application extends App implements IBootstrap
 {
@@ -57,6 +58,8 @@ class Application extends App implements IBootstrap
 		$context->registerEventListener(PostLoginEvent::class, AutoGroupsListener::class);
 		$context->registerEventListener(UserLoggedInEvent::class, AutoGroupsListener::class);
 		$context->registerEventListener(BeforeGroupDeletedEvent::class, AutoGroupsListener::class);
+
+		$context->registerDeclarativeSettings(Admin::class);
 	}
 
 	public function boot(IBootContext $context): void
