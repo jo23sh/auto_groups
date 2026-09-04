@@ -3,15 +3,14 @@ OC.L10N.register(
     {
     "Group \"%1$s\" is used in the Auto Groups App and cannot be deleted." : "Gruppen \"%1$s\" brukes i Auto Groups-appen og kan ikke slettes.",
     "Auto Groups" : "Automatiske grupper",
-    "Automatically adds all users to one or multiple specified groups." : "Legger automatisk til alle brukere i en eller flere spesifiserte grupper.",
     "Automatically add all users to these groups." : "Legg automatisk til alle brukere i disse gruppene.",
-    "Override Groups:" : "Overstyr grupper:",
     "Users which are member of at least one of these groups are removed from the auto groups. This is also the case if the user is added to one of these groups after creation, i.e., membership in the override groups is checked after each group modification." : "Brukere som er medlem av minst én av disse gruppene fjernes fra autogruppene. Dette er også tilfelle hvis brukeren legges til i en av disse gruppene etter opprettelse, dvs. medlemskap i overstyringsgruppene kontrolleres etter hver gruppeendring.",
     "Set Auto Group membership on user creation." : "Angi automatisk gruppemedlemskap ved brukeroppretting.",
     "If checked, Auto Group membership will be enforced on user creation." : "Hvis det er merket av for, vil automatisk gruppemedlemskap bli håndhevet når brukeren opprettes.",
     "Check Auto Group membership on modification of a user's groups." : "Sjekk Auto Group-medlemskap ved endring av en brukers grupper.",
     "If checked, Auto Group membership will be re-enforced for a user account every time it is added to or removed from a group." : "Hvis det er merket av for, vil automatisk gruppemedlemskap bli gjenopprettet for en brukerkonto hver gang den legges til eller fjernes fra en gruppe.",
     "Check for correct Auto Group membership on every login." : "Se etter riktig Auto Group-medlemskap ved hver pålogging.",
-    "Enable this setting to enforce proper Auto Group membership on every successful login. This is useful if either users are not created in Nextcloud (e.g., with external user backends) or to enforce correct group membership for all users when the Auto Groups / Override Groups have changed." : "Aktiver denne innstillingen for å fremtvinge riktig Auto Group-medlemskap ved hver vellykket pålogging. Dette er nyttig hvis brukere enten ikke er opprettet i Nextcloud (f.eks. med eksterne brukerstøtter) eller for å fremtvinge riktig gruppemedlemskap for alle brukere når de automatiske gruppene/overstyringsgruppene har endret seg."
+    "Enable this setting to enforce proper Auto Group membership on every successful login. This is useful if either users are not created in Nextcloud (e.g., with external user backends) or to enforce correct group membership for all users when the Auto Groups / Override Groups have changed." : "Aktiver denne innstillingen for å fremtvinge riktig Auto Group-medlemskap ved hver vellykket pålogging. Dette er nyttig hvis brukere enten ikke er opprettet i Nextcloud (f.eks. med eksterne brukerstøtter) eller for å fremtvinge riktig gruppemedlemskap for alle brukere når de automatiske gruppene/overstyringsgruppene har endret seg.",
+    "Automatically adds all users to one or multiple specified groups." : "Legger automatisk til alle brukere i en eller flere spesifiserte grupper."
 },
 "nplurals=2; plural=(n != 1);");

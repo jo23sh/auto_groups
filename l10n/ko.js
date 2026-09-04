@@ -3,15 +3,14 @@ OC.L10N.register(
     {
     "Group \"%1$s\" is used in the Auto Groups App and cannot be deleted." : "그룹 \"%1$s\"은 Auto Groups App에서 사용되므로 삭제할 수 없습니다.\n ",
     "Auto Groups" : "자동 그룹",
-    "Automatically adds all users to one or multiple specified groups." : "지정된 하나 이상의 그룹에 모든 사용자를 자동으로 추가합니다.",
     "Automatically add all users to these groups." : "모든 사용자를 이러한 그룹에 자동으로 추가합니다.",
-    "Override Groups:" : "그룹 재정의:",
     "Users which are member of at least one of these groups are removed from the auto groups. This is also the case if the user is added to one of these groups after creation, i.e., membership in the override groups is checked after each group modification." : "이러한 그룹 중 하나 이상의 구성원인 사용자는 자동 그룹에서 제거됩니다. 이는 사용자가 생성 후 이러한 그룹 중 하나에 추가되는 경우에도 마찬가지입니다. 즉, 재정의 그룹의 구성원 자격이 각 그룹 수정 후 검사됩니다.",
     "Set Auto Group membership on user creation." : "사용자 생성 시 Auto Group 구성원 자격을 설정합니다.",
     "If checked, Auto Group membership will be enforced on user creation." : "이 옵션을 선택하면 사용자 생성 시 Auto Group 구성원 자격이 적용됩니다.",
     "Check Auto Group membership on modification of a user's groups." : "사용자의 그룹을 수정하기 위해서는 Auto Group 구성원 자격을 확인해 주세요.",
     "If checked, Auto Group membership will be re-enforced for a user account every time it is added to or removed from a group." : "이 옵션을 선택하면, 사용자 계정이 그룹에 추가되거나 삭제될 때마다 Auto Group 구성원 자격이 다시 적용됩니다.",
     "Check for correct Auto Group membership on every login." : "로그인할 때마다 Auto Group 구성원 자격이 올바른지 확인합니다.",
-    "Enable this setting to enforce proper Auto Group membership on every successful login. This is useful if either users are not created in Nextcloud (e.g., with external user backends) or to enforce correct group membership for all users when the Auto Groups / Override Groups have changed." : "로그인에 성공할 때마다 적절한 Auto Group 구성원 자격을 적용하려면 이 설정을 사용합니다. 이 기능은 사용자가 Next Cloud에서 생성되지 않았거나(예: 외부 사용자 백엔드 포함) Auto Groups/Override Groups(자동 그룹/Override Groups(그룹 재정의)가 변경되었을 때 모든 사용자에게 올바른 그룹 구성원 자격을 적용하는 경우에 유용합니다."
+    "Enable this setting to enforce proper Auto Group membership on every successful login. This is useful if either users are not created in Nextcloud (e.g., with external user backends) or to enforce correct group membership for all users when the Auto Groups / Override Groups have changed." : "로그인에 성공할 때마다 적절한 Auto Group 구성원 자격을 적용하려면 이 설정을 사용합니다. 이 기능은 사용자가 Next Cloud에서 생성되지 않았거나(예: 외부 사용자 백엔드 포함) Auto Groups/Override Groups(자동 그룹/Override Groups(그룹 재정의)가 변경되었을 때 모든 사용자에게 올바른 그룹 구성원 자격을 적용하는 경우에 유용합니다.",
+    "Automatically adds all users to one or multiple specified groups." : "지정된 하나 이상의 그룹에 모든 사용자를 자동으로 추가합니다."
 },
 "nplurals=1; plural=0;");
