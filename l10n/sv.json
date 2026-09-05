@@ -2,6 +2,7 @@
     "Group \"%1$s\" is used in the Auto Groups App and cannot be deleted." : "Grupp \"%1$s\" används i Auto Groups-appen och kan inte tas bort.",
     "Auto Groups" : "Auto Groups",
     "Automatically add all users to these groups." : "Lägg automatiskt till alla användare i dessa grupper.",
+    "Override Groups" : "Åsidosätt grupper",
     "Users which are member of at least one of these groups are removed from the auto groups. This is also the case if the user is added to one of these groups after creation, i.e., membership in the override groups is checked after each group modification." : "Användare som är medlemmar i minst en av dessa grupper tas bort från de automatiska grupperna. Detta gäller även om användaren läggs till i en undantagsgrupp efter att kontot har skapats, eftersom medlemskapet i undantagsgrupperna kontrolleras efter varje gruppändring.",
     "Set Auto Group membership on user creation." : "Ange medlemskap i automatiska grupper när användare skapas.",
     "If checked, Auto Group membership will be enforced on user creation." : "När detta är markerat tillämpas medlemskapet i automatiska grupper när användare skapas.",
