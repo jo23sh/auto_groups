@@ -4,6 +4,7 @@ OC.L10N.register(
     "Group \"%1$s\" is used in the Auto Groups App and cannot be deleted." : "Le groupe \"%1$s\" est utilisé pour l'application Groupes Automatiques et ne peut pas être supprimé.",
     "Auto Groups" : "Groupes Automatiques",
     "Automatically add all users to these groups." : "Ajouter automatiquement tous les utilisateurs à ces groupes.",
+    "Override Groups" : "Groupes Dérogatoires",
     "Users which are member of at least one of these groups are removed from the auto groups. This is also the case if the user is added to one of these groups after creation, i.e., membership in the override groups is checked after each group modification." : "Les utilisateurs qui sont membres d'au moins un de ces groupes sont supprimés des groupes automatiques. C'est également le cas si l'utilisateur est ajouté à l'un de ces groupes après sa création, c'est-à-dire que l'appartenance aux groupes de substitution est vérifiée après chaque modification de groupe.",
     "Set Auto Group membership on user creation." : "Définir l’adhésion automatique au groupe lors de la création de l’utilisateur.",
     "If checked, Auto Group membership will be enforced on user creation." : "Si coché, l’adhésion automatique au groupe sera appliquée à la création de l’utilisateur.",

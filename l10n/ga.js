@@ -4,6 +4,7 @@ OC.L10N.register(
     "Group \"%1$s\" is used in the Auto Groups App and cannot be deleted." : "Úsáidtear grúpa \"%1$s\" san aip Auto Groups agus ní féidir é a scriosadh.",
     "Auto Groups" : "Grúpaí Gluaisteán",
     "Automatically add all users to these groups." : "Cuir gach úsáideoir leis na grúpaí seo go huathoibríoch.",
+    "Override Groups" : "Sáraigh Grúpaí",
     "Users which are member of at least one of these groups are removed from the auto groups. This is also the case if the user is added to one of these groups after creation, i.e., membership in the override groups is checked after each group modification." : "Baintear úsáideoirí atá ina mbaill de cheann amháin ar a laghad de na grúpaí seo de na grúpaí uathoibríocha. Tá sé seo amhlaidh freisin má chuirtear an t-úsáideoir le ceann de na grúpaí seo tar éis an chruthaithe, i.e., seiceáiltear ballraíocht sna grúpaí sáraithe tar éis gach modhnú grúpa.",
     "Set Auto Group membership on user creation." : "Socraigh ballraíocht Auto Group ar chruthú úsáideoirí.",
     "If checked, Auto Group membership will be enforced on user creation." : "Má dhéantar é a sheiceáil, cuirfear ballraíocht Auto Group i bhfeidhm ar chruthú úsáideoirí.",
