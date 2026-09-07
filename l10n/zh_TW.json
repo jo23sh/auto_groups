@@ -2,6 +2,7 @@
     "Group \"%1$s\" is used in the Auto Groups App and cannot be deleted." : "群組「%1$s」用於自動分組應用程式，無法刪除。",
     "Auto Groups" : "自動分組",
     "Automatically add all users to these groups." : "自動將所有使用者加到這些群組。",
+    "Override Groups" : "覆寫群組",
     "Users which are member of at least one of these groups are removed from the auto groups. This is also the case if the user is added to one of these groups after creation, i.e., membership in the override groups is checked after each group modification." : "屬於以下至少一個群組的使用者將從自動群組中刪除。建立後將使用者加到這些群組之一時，將套用相同的操作。也就是說，每次修改使用者的群組分配後，系統都會檢查其覆蓋群組中的成員身分。",
     "Set Auto Group membership on user creation." : "在建立使用者時設定自動群組成員身份。",
     "If checked, Auto Group membership will be enforced on user creation." : "若勾選，建立使用者時將會強制加入自動群組成員身份。",
