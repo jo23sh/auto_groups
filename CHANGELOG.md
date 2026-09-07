@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Code coverage reporting and the README coverage badge, which had been broken
+  since Codecov sunset the `codecov.io/bash` uploader the workflow relied on.
+
 ## 1.8.0 - 2026-09-03
 
 ### Fixed

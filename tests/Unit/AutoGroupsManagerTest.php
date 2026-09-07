@@ -355,4 +355,70 @@ class AutoGroupsManagerTest extends TestCase
         // Legacy creation_only=false means modification_hook should be migrated to true
         $agm = $this->configMigrationTestImpl('false', 'true');
     }
+
+    public function testConfigMigrationFromLegacyAppId()
+    {
+        // Every key still stored under the old `AutoGroups` app id is copied to
+        // `auto_groups` and then dropped (GitHub issue #82). `creation_hook`
+        // being set is what marks a config as needing the migration at all.
+        $this->config->expects($this->exactly(6))
+            ->method('getAppValue')
+            ->withConsecutive(
+                ['AutoGroups', 'creation_only'],
+                ['AutoGroups', 'creation_hook'],
+                ['AutoGroups', 'modification_hook'],
+                ['AutoGroups', 'login_hook'],
+                ['AutoGroups', 'auto_groups'],
+                ['AutoGroups', 'override_groups'],
+            )
+            ->willReturnOnConsecutiveCalls(
+                '', // no creation_only, so that migration is skipped
+                'true',
+                'false',
+                'true',
+                '["autogroup1"]',
+                '["overridegroup1"]',
+            );
+
+        $this->config->expects($this->exactly(5))
+            ->method('setAppValue')
+            ->withConsecutive(
+                ['auto_groups', 'creation_hook', 'true'],
+                ['auto_groups', 'modification_hook', 'false'],
+                ['auto_groups', 'login_hook', 'true'],
+                ['auto_groups', 'auto_groups', '["autogroup1"]'],
+                ['auto_groups', 'override_groups', '["overridegroup1"]'],
+            );
+
+        $this->config->expects($this->exactly(5))
+            ->method('deleteAppValue')
+            ->withConsecutive(
+                ['AutoGroups', 'creation_hook'],
+                ['AutoGroups', 'modification_hook'],
+                ['AutoGroups', 'login_hook'],
+                ['AutoGroups', 'auto_groups'],
+                ['AutoGroups', 'override_groups'],
+            );
+
+        new AutoGroupsManager($this->groupManager, $this->userManager, $this->config, $this->logger, $this->il10n);
+    }
+
+    public function testConfigMigrationSkipsKeysThatAreNotSet()
+    {
+        // A config that only ever set creation_hook migrates that one key and
+        // leaves the others alone, rather than writing empty values across.
+        $this->config->expects($this->exactly(6))
+            ->method('getAppValue')
+            ->willReturnOnConsecutiveCalls('', 'false', '', '', '', '');
+
+        $this->config->expects($this->once())
+            ->method('setAppValue')
+            ->with('auto_groups', 'creation_hook', 'false');
+
+        $this->config->expects($this->once())
+            ->method('deleteAppValue')
+            ->with('AutoGroups', 'creation_hook');
+
+        new AutoGroupsManager($this->groupManager, $this->userManager, $this->config, $this->logger, $this->il10n);
+    }
 }
