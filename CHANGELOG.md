@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.8.1 - 2026-09-07
+
+### Changed
+
+- Translation updates from Transifex: the "Override Groups" label in eight more
+  languages, and revised Brazilian Portuguese terminology.
+
 ### Fixed
 
 - Code coverage reporting and the README coverage badge, which had been broken

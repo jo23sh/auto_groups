@@ -2,7 +2,7 @@
 
 ## Overview
 
-A Nextcloud app (v1.8.0, AGPL-3.0) that automatically adds users to configured groups ("Auto Groups"), with optional exemptions for users in "Override Groups". A modernized fork of the abandoned [defaultgroup](https://github.com/bodangren/defaultgroup) app.
+A Nextcloud app (AGPL-3.0) that automatically adds users to configured groups ("Auto Groups"), with optional exemptions for users in "Override Groups". A modernized fork of the abandoned [defaultgroup](https://github.com/bodangren/defaultgroup) app.
 
 - **Nextcloud compatibility**: 32–36
 - **PHP**: 8.2, 8.3, 8.4 (NC35 requires 8.3, so the CI matrix excludes 8.2 there)
@@ -70,8 +70,8 @@ To cut a release (on `master`, once the changes to ship are merged):
 1. Bump `<version>` in `appinfo/info.xml`.
 2. In `CHANGELOG.md`, retitle `## [Unreleased]` as `## <version> - <YYYY-MM-DD>` and
    leave a fresh empty `## [Unreleased]` above it.
-3. Update the version in this file's Overview. If the release changed the supported
-   Nextcloud or PHP range, work the checklist below instead — it covers more places.
+3. If the release changed the supported Nextcloud or PHP range, work the checklist
+   below instead — it covers more places.
 4. Commit and push to `master`.
 5. `gh release create v<version> --title "Release <version>" --generate-notes` —
    the tag is `v`-prefixed, the release title is not, and the body is GitHub's
@@ -114,5 +114,14 @@ CHANGELOG the way 1.7.2 did: "Compatibility up to NC35, drop EOL version NC31".
 ## Noteworthy
 
 - **Config namespace migration**: The app previously used `AutoGroups` as the config namespace instead of `auto_groups`. Migration code in `AutoGroupsManager::__construct` handles upgrading old configs (see GitHub issue #82).
-- **l10n**: Translations managed via Transifex (`.tx/config`); many languages supported.
+- **l10n**: Translations come from Transifex (resource `o:nextcloud:p:nextcloud:r:auto_groups`,
+  see `.tx/config`) and the Nextcloud bot regenerates `l10n/` wholesale on a daily sync.
+  Never hand-edit anything under `l10n/` — the next sync drops it, including strings
+  Transifex has no translation for. Fix a wrong translation at
+  https://app.transifex.com/nextcloud/nextcloud/translate/#<lang>/auto_groups instead.
+  Editing needs membership in that language's team; without it you can only leave a
+  suggestion for a reviewer, so a translation fix is never something a release can wait on.
+  The glossary check wants the term "groups" as a standalone word, which is why compound
+  renderings of "Override Groups" (German `Überschreibungsgruppen`) get flagged and tend to
+  be replaced with worse ones.
 - No Composer dependencies beyond dev tooling — the app relies entirely on Nextcloud's built-in OCP APIs.
