@@ -4,7 +4,7 @@ Automatically add users to specified Auto Groups, except for those belonging to 
 
 ## Test Status
 
-[![codecov](https://codecov.io/gh/jo23sh/auto_groups/branch/master/graph/badge.svg)](https://codecov.io/gh/jo23sh/auto_groups)
+[![Code Coverage](https://img.shields.io/codecov/c/github/jo23sh/auto_groups/master?label=Code%20Coverage)](https://codecov.io/gh/jo23sh/auto_groups)
 
 | Nextcloud Server Branch                                       |                                                 Unit & Integration Tests                                                  |
 | ------------------------------------------------------------- | :-----------------------------------------------------------------------------------------------------------------------: |
