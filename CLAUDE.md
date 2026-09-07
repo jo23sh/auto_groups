@@ -51,6 +51,18 @@ Stored via Nextcloud's `IConfig` under app `auto_groups`:
 - Manual testing: `tests/Docker/run-docker-test-instance.sh` spins up a Docker instance on port 8080
 - Lint: `composer run lint` (runs `php -l` on all PHP files)
 
+### Coverage
+
+Every matrix leg uploads `tests/coverage.xml` to Codecov via
+`codecov/codecov-action`, flagged with its `server-versions` value. Codecov
+merges the flags into the single number behind the README badge. Nothing in the
+workflow names a specific server branch, so a compatibility bump needs no edit
+here.
+
+The upload requires the `CODECOV_TOKEN` repository secret. Do not switch it to a
+tokenless upload — that path is rate-limited and drops reports without failing
+the step. Forks cannot read the secret, so `fail_ci_if_error` is off for them.
+
 ## Release Process
 
 To cut a release (on `master`, once the changes to ship are merged):

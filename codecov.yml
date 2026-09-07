@@ -1,3 +1,17 @@
-ignore:
-  - "appinfo/routes.php"
-  - "templates/admin.php"
+# The Clover report only ever contains `lib/` (see the <coverage> include in
+# tests/phpunit.xml), so no `ignore:` list is needed here.
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+    # Informational only: a one-class app swings wildly on small patches, and a
+    # blocking patch check would just be noise.
+    patch:
+      default:
+        informational: true
+
+comment:
+  require_changes: true

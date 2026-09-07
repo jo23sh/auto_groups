@@ -9,6 +9,9 @@ on:
   schedule:
     - cron: "0 2 * * *"
 
+permissions:
+  contents: read
+
 env:
   APP_NAME: auto_groups
   PHP_EXTENSIONS: mbstring, iconv, fileinfo, intl, sqlite, pdo_sqlite, xdebug, zip, gd
@@ -102,6 +105,17 @@ jobs:
         env:
           TRAVIS: true
 
-      - name: Codecov.io Upload
-        working-directory: apps/${{ env.APP_NAME }}
-        run: bash <(curl -s https://codecov.io/bash) -F ${{ matrix.server-versions }} -f ./tests/coverage.xml
+      # Every leg uploads under its own flag and Codecov merges them, so nothing
+      # here names a server branch and a compatibility bump needs no edit.
+      # Needs the CODECOV_TOKEN secret - the tokenless path for public repos is
+      # rate-limited and drops reports silently. Forks cannot read the secret,
+      # so a failed upload must not fail their build.
+      - name: Upload coverage to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          working-directory: apps/${{ env.APP_NAME }}
+          files: tests/coverage.xml
+          flags: ${{ matrix.server-versions }}
+          fail_ci_if_error: ${{ !github.event.pull_request.head.repo.fork }}
