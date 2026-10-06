@@ -5,7 +5,7 @@ OC.L10N.register(
     "Auto Groups" : "Automatické skupiny",
     "Automatically add all users to these groups." : "Automaticky pridávať všetkých používateľov do týchto skupín.",
     "Override Groups" : "Skupiny výnimiek",
-    "Users which are member of at least one of these groups are removed from the auto groups. This is also the case if the user is added to one of these groups after creation, i.e., membership in the override groups is checked after each group modification." : "Používatelia, ktorí sú členmi aspoň jednej z týchto skupín, sú odstránení z automatických skupín. To je tiež prípad, keď je užívateľ pridaný do jednej z týchto skupín po vytvorení, t.j. členstvo v prepisujúcich skupinách sa kontroluje po každej zmene skupiny.",
+    "Users which are member of at least one of these groups are removed from the auto groups. This is also the case if the user is added to one of these groups after creation, i.e., membership in the override groups is checked after each group modification." : "Používatelia, ktorí sú členmi aspoň jednej z týchto skupín, sa odstránia z automatických skupín. Platí to aj vtedy, ak je používateľ po vytvorení pridaný do jednej z týchto skupín, t. j. členstvo v skupinách výnimiek sa kontroluje po každej zmene skupiny.",
     "Set Auto Group membership on user creation." : "Nastaviť členstvo v Automatickej skupine pri vytváraní užívateľa.",
     "If checked, Auto Group membership will be enforced on user creation." : "Ak je vybrané, členstvo v Automatickej skupine bude vynútené pri vytváraní užívateľa.",
     "Check Auto Group membership on modification of a user's groups." : "Skontrolovať členstvo v Automatickej skupine pri zmene skupín užívateľa.",
